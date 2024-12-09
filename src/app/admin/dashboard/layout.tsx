@@ -1,81 +1,18 @@
-"use client"
+import React from "react";
+import SideNav from "../../components/admin/Sidenav";
 
-import React, { useState } from "react";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import ExpandLessIcon from "@mui/icons-material/ExpandLess";
-
-const SideNav = () => {
-  // Define openSections state with a more general type for keys
-  const [openSections, setOpenSections] = useState<{ [key: string]: boolean }>({
-    movie: true,
-    reports: true,
-  });
-
-  const toggleSection = (section: string) => {
-    setOpenSections((prev) => ({
-      ...prev,
-      [section]: !prev[section],
-    }));
-  };
-
+const AdminLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   return (
-    <div className="h-screen w-64 bg-[#EAE8E8] text-black p-4 shadow-lg">
-      <nav>
-        <h1 className="text-3xl text-center my-5">CINEMAers</h1>
-        {/* Movies Section */}
-        <div className="mb-6">
-          <button
-            onClick={() => toggleSection("movie")}
-            className="flex justify-between items-center w-full text-left font-bold text-lg p-2 hover:bg-[#ded9d6] rounded-md"
-          >
-            Movies
-            {openSections.movie ? (
-              <ExpandLessIcon />
-            ) : (
-              <ExpandMoreIcon />
-            )}
-          </button>
-          {openSections.movie && (
-            <ul className="ml-4 mt-2 space-y-2">
-              <li className="hover:underline cursor-pointer">Add Movie</li>
-              <li className="hover:underline cursor-pointer">Remove Movie</li>
-            </ul>
-          )}
-        </div>
+    <div style={{ display: "flex", height: "100vh" }}>
+      {/* Sidebar */}
+      <SideNav />
 
-        {/* Reports Section */}
-        <div className="mb-6">
-          <button
-            onClick={() => toggleSection("reports")}
-            className="flex justify-between items-center w-full text-left font-bold text-lg p-2 hover:bg-[#ded9d6] rounded-md"
-          >
-            Reports
-            {openSections.reports ? (
-              <ExpandLessIcon />
-            ) : (
-              <ExpandMoreIcon />
-            )}
-          </button>
-          {openSections.reports && (
-            <ul className="ml-4 mt-2 space-y-2">
-              <li className="hover:underline cursor-pointer">Sales</li>
-              <li className="hover:underline cursor-pointer">Traffic</li>
-            </ul>
-          )}
-        </div>
-
-        {/* Settings Section */}
-        <div>
-          <h3 className="font-bold text-lg p-2">Settings</h3>
-          <ul className="ml-4 mt-2 space-y-2">
-            <li className="hover:underline cursor-pointer">Profile</li>
-            <li className="hover:underline cursor-pointer">Account</li>
-            <li className="hover:underline cursor-pointer">Logout</li>
-          </ul>
-        </div>
-      </nav>
+      {/* Main Content */}
+      <main style={{ flex: 1, overflowY: "auto", padding: "20px" }}>
+        {children}
+      </main>
     </div>
   );
 };
 
-export default SideNav;
+export default AdminLayout;
