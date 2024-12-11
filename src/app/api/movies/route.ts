@@ -11,19 +11,18 @@ export async function GET() {
   }
 }
 
-
-/*export async function GET(req: Request) {
+export async function POST() {
   try {
-    // Query a single movie by its ID (you can replace '1' with any ID to test)
-    const result = await query('SELECT * FROM movies WHERE movie_id = $1', [1]);
-    const movie = result.rows[0]; // Get the first movie (if exists)
-
-    if (movie) {
-      return NextResponse.json(movie); // Return the specific movie
-    } else {
-      return NextResponse.json({ error: 'Movie not found' }, { status: 404 });
-    }
+    return NextResponse.json({ message: 'Success'}, { status: 200 });
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
-}*/
+}
+
+export async function DELETE() {
+  try {
+    return NextResponse.json({ message: 'Success'}, { status: 200 });
+  } catch (error: any) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+}
