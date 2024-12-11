@@ -11,10 +11,12 @@
   "dependencies": {
     "@emotion/react": "^11.13.5",
     "@emotion/styled": "^11.13.5",
+    "@mailchimp/mailchimp_marketing": "^3.0.80",
     "@mui/icons-material": "^6.1.10",
     "@mui/material": "^6.1.10",
     "@prisma/client": "^6.0.1",
     "axios": "^1.7.9",
+    "i": "^0.3.7",
     "next": "15.0.4",
     "pg": "^8.13.1",
     "react": "^18.3.1",

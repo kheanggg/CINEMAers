@@ -10,6 +10,7 @@ import PersonIcon from '@mui/icons-material/Person';
 import StarIcon from '@mui/icons-material/Star';
 import Link from "next/link";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
+import axios from 'axios';
 import {
   MenuItem,
   FormControl,
@@ -54,7 +55,13 @@ const NewsletterModal: React.FC<NewsletterModalProps> = ({
     setErrorMessage('');
 
     try {
-      await onSubscribe(email);
+      const response = await axios.post('/api/subscribe', { email });
+
+      if (response.data.success) {
+        setErrorMessage('Successfully subscribed!');
+      } else {
+        setErrorMessage('Failed to subscribe');
+      }
       setEmail('');
       onClose();
     } catch (error) {
@@ -103,6 +110,7 @@ const NewsletterModal: React.FC<NewsletterModalProps> = ({
             type="submit"
             variant="contained"
             color="primary"
+            onClick={handleSubmit}
             disabled={isSubmitting}
             sx={{
               textTransform: 'none',
