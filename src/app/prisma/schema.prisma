@@ -1,0 +1,22 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Movie {
+  movie_id     Int      @id @default(autoincrement()) // Primary key with auto-increment
+  title        String   @db.VarChar(255)             // Title with max length of 255
+  description  String?  @db.Text                     // Optional text field
+  release_date DateTime?                             // Optional release date
+  duration     Int?                                  // Optional duration in minutes
+  genre        String?  @db.VarChar(100)             // Optional genre with max length of 100
+  rating       String?  @db.VarChar(25)              // Optional rating with max length of 25
+  posterurl    String?  @db.VarChar(255)             // Optional poster URL with max length of 255
+  trailerurl   String?  @db.VarChar(255)             // Optional trailer URL with max length of 255
+
+  @@map("movies") // Maps the model to the existing "movies" table
+}

@@ -1,15 +1,14 @@
 "use client"
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import Link from 'next/link';
 import SkeletonCard from './SkeletonCard';
 
 // Define Movie interface to match both static and dynamic data structures
 interface Movie {
-  id: number;
+  movie_id: number;
   title: string;
-  image: string;
-  cinemas: string[];
+  posterurl: string;
+  cinemas: string[];  // Assuming this is an array of strings
 }
 
 const MovieCard = ({ movie }: { movie: Movie }) => {
@@ -17,7 +16,7 @@ const MovieCard = ({ movie }: { movie: Movie }) => {
     <Link href="/movie" className="flex flex-col gap-4 h-full group">
       <div className="relative flex-1 w-full overflow-hidden rounded-xl">
         <img 
-          src={movie.image} 
+          src={movie.posterurl} 
           alt={movie.title}
           className="w-full h-full object-cover"
         />
@@ -43,18 +42,17 @@ const MovieList = () => {
   const [movies, setMovies] = useState<Movie[]>([]);
 
   useEffect(() => {
-    axios.get('http://localhost:3000/api/movies')
-      .then(res => {
-        const apiMovies = res.data.map((movie: any, index: number) => ({
-          id: movie.movie_id,
-          title: movie.title,
-          image: movie.posterurl,
-        }));
-        setMovies(apiMovies);
-      })
-      .catch(err => {
+    const fetchMovies = async () => {
+      try {
+        const response = await fetch('/api/movies'); // Fetch movies from the API route
+        const fetchedMovies = await response.json();
+        setMovies(fetchedMovies);
+      } catch (err) {
         console.error('Error fetching data:', err);
-      });
+      }
+    };
+  
+    fetchMovies();
   }, []);
 
   return (
@@ -62,7 +60,7 @@ const MovieList = () => {
       <div className="grid xs:grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
         {movies.length > 0 ? (
           movies.map((movie) => (
-            <MovieCard key={movie.id} movie={movie} />
+            <MovieCard key={movie.movie_id} movie={movie} />
           ))
         ) : (
           Array(4).fill(null).map((_, index) => (

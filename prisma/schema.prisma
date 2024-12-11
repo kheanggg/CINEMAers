@@ -1,0 +1,26 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Movie {
+  movie_id     Int       @id @default(autoincrement())
+  title        String    @db.VarChar(255)
+  description  String?
+  release_date DateTime? @db.Date
+  duration     Int?
+  genre        String?   @db.VarChar(100)
+  rating       String?   @db.VarChar(25)
+  posterurl    String?   @db.VarChar(255)
+  trailerurl   String?   @db.VarChar(255)
+
+  @@map("movies")
+}
+
+/// We could not retrieve columns for the underlying table. Either it has none or you are missing rights to see them. Please check your privileges.
+// model users {
+// }
