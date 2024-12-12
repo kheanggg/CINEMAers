@@ -13,7 +13,7 @@ interface Movie {
 
 const MovieCard = ({ movie }: { movie: Movie }) => {
   return (
-    <Link href="/movie" className="flex flex-col gap-4 h-full group">
+    <Link href={`/movies/${movie.movie_id}`} className="flex flex-col gap-4 h-full group">
       <div className="relative flex-1 w-full overflow-hidden rounded-xl">
         <img 
           src={movie.posterurl} 
@@ -44,9 +44,9 @@ const MovieList = () => {
   useEffect(() => {
     const fetchMovies = async () => {
       try {
-        const response = await fetch('/api/movies'); // Fetch movies from the API route
-        const fetchedMovies = await response.json();
-        setMovies(fetchedMovies);
+        const response = await fetch('/api/movies');
+        const data = await response.json();
+        setMovies(data);
       } catch (err) {
         console.error('Error fetching data:', err);
       }
