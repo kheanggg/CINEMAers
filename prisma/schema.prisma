@@ -7,7 +7,21 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Movie {
+model User {
+  user_id       Int       @id
+  name          String?   @db.VarChar(20)
+  username      String?   @db.VarChar(20)
+  date_of_birth DateTime? @db.Date
+  phone_number  String?   @db.VarChar(15)
+  password_hash String?   @db.VarChar(255)
+  oauthprovider String?   @db.VarChar(50)
+  oauth_id      String?   @db.VarChar(255)
+  created_at    DateTime? @default(now()) @db.Timestamp(6)
+
+  @@map("users")
+}
+
+model movies {
   movie_id     Int       @id @default(autoincrement())
   title        String    @db.VarChar(255)
   description  String?
@@ -17,10 +31,4 @@ model Movie {
   rating       String?   @db.VarChar(25)
   posterurl    String?   @db.VarChar(255)
   trailerurl   String?   @db.VarChar(255)
-
-  @@map("movies")
 }
-
-/// We could not retrieve columns for the underlying table. Either it has none or you are missing rights to see them. Please check your privileges.
-// model users {
-// }

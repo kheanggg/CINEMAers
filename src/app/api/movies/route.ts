@@ -1,39 +1,66 @@
-import { NextResponse } from 'next/server';
-import prisma from '../../lib/prisma';
+import { NextRequest, NextResponse } from 'next/server'
+import prisma from '../../lib/prisma' // Adjust the path if necessary
+import { z } from 'zod';
 
-export async function GET(request: Request) {
-  // Get the URL search params from the request
-  const url = new URL(request.url);
-  const movieId = url.searchParams.get('movie_id');
+const createNewMovie = z.object({
+  title: z.string().min(1).max(255),
+  description: z.string().max(255),
+  release_date: z.string().refine((val) => !isNaN(Date.parse(val)), {
+    message: 'Invalid date format',
+  }),
+  duration: z.number().int(),
+  genre: z.string().max(10),
+  rating: z.string().max(25),
+  posterurl: z.string().url(),
+  trailerurl: z.string().url(),
+});
 
-  if (movieId) {
-    // If movie_id is provided, use findUnique to fetch a specific movie
-    try {
-      const movie = await prisma.movie.findUnique({
-        where: {
-          movie_id: Number(movieId), // Convert movieId to a number
-        },
-      });
+export async function GET(request: NextRequest) {
+  try {
+    // Fetch movies from your Prisma database
+    const movies = await prisma.movies.findMany() // Adjust the model name as per your schema
 
-      if (!movie) {
-        // If no movie is found with the provided id
-        return NextResponse.json({ message: 'Movie not found.' }, { status: 404 });
-      }
+    // Return the movies in the response
+    return NextResponse.json(movies)
+  } catch (error) {
+    // Handle errors
+    console.error('Error fetching movies:', error)
+    return NextResponse.json({ error: 'Failed to fetch movies' }, { status: 500 })
+  }
+}
 
-      // Return the found movie
-      return NextResponse.json(movie);
-    } catch (error) {
-      // Handle any errors during fetching
-      return NextResponse.json({ message: 'Error fetching movie.' }, { status: 500 });
-    }
-  } else {
-    // If no movie_id is provided, use findMany to fetch all movies
-    try {
-      const movies = await prisma.movie.findMany(); // Fetch all movies
-      return NextResponse.json(movies); // Return all movies
-    } catch (error) {
-      // Handle any errors during fetching
-      return NextResponse.json({ message: 'Error fetching movies.' }, { status: 500 });
-    }
+export async function POST(request: NextRequest) {
+  const body = await request.json();
+
+  // Validate the body using zod
+  const validation = createNewMovie.safeParse(body);
+  if (!validation.success) {
+    return NextResponse.json(validation.error.errors, { status: 400 });
+  }
+
+  const { title, description, release_date, duration, genre, rating, posterurl, trailerurl } = body;
+
+  try {
+    // Convert release_date to Date object
+    const formattedReleaseDate = new Date(release_date);
+
+    // Create new movie record in the database
+    const newMovie = await prisma.movies.create({
+      data: {
+        title,
+        description,
+        release_date: formattedReleaseDate, // Use the Date object here
+        duration,
+        genre,
+        rating,
+        posterurl,
+        trailerurl,
+      },
+    });
+
+    return NextResponse.json(newMovie, { status: 201 });
+  } catch (error) {
+    console.error('Error creating movie:', error);
+    return NextResponse.json({ message: 'Error creating movie.' }, { status: 500 });
   }
 }
