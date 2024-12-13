@@ -12,7 +12,7 @@ const createNewMovie = z.object({
   duration: z.number().int(),
   genre: z.string().max(10),
   rating: z.string().max(25),
-  posterurl: z.string().url(),
+  posterurl: z.string(),
   trailerurl: z.string().url(),
 });
 
@@ -26,7 +26,7 @@ const updateMovie = z.object({
   duration: z.number().int().optional(),
   genre: z.string().max(10).optional(),
   rating: z.string().max(25).optional(),
-  posterurl: z.string().url().optional(),
+  posterurl: z.string().optional(),
   trailerurl: z.string().url().optional(),
 });
 
@@ -85,6 +85,7 @@ export async function GET(request: NextRequest) {
 // Handle POST requests (Create a new movie)
 export async function POST(request: NextRequest) {
   const body = await request.json(); // Parse the request body
+  console.log(body);
   const validation = createNewMovie.safeParse(body); // Validate the input using Zod schema
 
   if (!validation.success) {

@@ -1,38 +1,79 @@
-"use client"
+"use client";
 
 import React, { useState } from "react";
 
 export default function Movie() {
-  // State for genre and custom genre flag
-  const [genre, setGenre] = useState('');
-  const [isCustomGenre, setIsCustomGenre] = useState(false);
-  const handleGenreChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    if (e.target.value === 'custom') {
-      setIsCustomGenre(true);
-      setGenre('');
-    } else {
-      setIsCustomGenre(false);
-      setGenre(e.target.value);
+  const [formData, setFormData] = useState({
+    "title": "",
+    "release_date": "",
+    "rating": "",
+    "genre": "",
+    "duration": "",
+    "posterurl": "",
+    "trailerurl": "",
+    "description": "",
+  });
+
+  const [isCustomRate, setIsCustomRate] = useState(false); // Toggle for custom rate input
+  const [rate, setRate] = useState(""); // Stores custom rate input
+
+  // Function to handle file input (get filename only)
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, field: string) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      // Only store the filename
+      setFormData((prev) => ({
+        ...prev,
+        [field]: file.name,
+      }));
     }
   };
 
-  // State for rate and custom rate flag
-  const [rate, setRate] = useState('');
-  const [isCustomRate, setIsCustomRate] = useState(false);
-  const handleRateChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const selectedValue = e.target.value;
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
 
-    if (selectedValue === 'custom') {
-      setIsCustomRate(true);
-      setRate('');
-    } else {
-      setIsCustomRate(false);
-      setRate(selectedValue);
-    }
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   };
 
-  // State for description
-  const [description, setDescription] = useState('');
+  // Handle form submission
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    const parsedDuration = Number(formData.duration);
+    if (isNaN(parsedDuration)) {
+      alert("Duration must be a valid number.");
+      return;
+    }
+
+    const dataToSend = {
+      ...formData,
+      duration: parsedDuration, // Ensure duration is a number
+    };
+
+    console.log(dataToSend);
+    try {
+      const response = await fetch("/api/movies", {
+        method: "POST",
+        body: JSON.stringify(dataToSend),
+      });
+
+    const responseData = await response.json();
+    
+    if (response.ok) {
+      alert("Movie added successfully!");
+    } else {
+      console.error("Error:", responseData.message);
+      alert(`Failed to add the movie: ${responseData.message}`);
+    }
+
+    } catch (error) {
+      console.error("Error:", error);
+      alert("An error occurred while adding the movie.");
+    }
+  };
 
   return (
     <div className="text-black h-screen bg-gray-100">
@@ -40,7 +81,7 @@ export default function Movie() {
         <h1 className="text-3xl mb-4">Add Movie</h1>
         <div className="bg-white shadow-md rounded-lg p-6">
           <h2 className="text-xl mb-4">Movie Details</h2>
-          <form className="grid grid-cols-2 gap-6">
+          <form className="grid grid-cols-2 gap-6" onSubmit={handleSubmit}>
             {/* Movie Title */}
             <div>
               <label htmlFor="title" className="block text-sm font-medium mb-1">
@@ -52,43 +93,47 @@ export default function Movie() {
                 name="title"
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 placeholder="Enter movie title"
+                value={formData.title}
+                onChange={handleChange}
               />
             </div>
 
             {/* Release Date */}
             <div>
-              <label htmlFor="releaseDate" className="block text-sm font-medium mb-1">
+              <label htmlFor="release_date" className="block text-sm font-medium mb-1">
                 Release Date
               </label>
               <input
                 type="date"
-                id="releaseDate"
-                name="releaseDate"
+                id="release_date"
+                name="release_date"
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                value={formData.release_date}
+                onChange={handleChange}
               />
             </div>
 
             {/* Movie Rate */}
             <div>
-              <label htmlFor="rate" className="block text-sm font-medium mb-1">
-                Movie Rate
+              <label htmlFor="rating" className="block text-sm font-medium mb-1">
+                Movie Rating
               </label>
               {isCustomRate ? (
                 <div className="flex items-center space-x-2">
                   <input
                     type="text"
-                    id="rate"
-                    name="rate"
+                    id="customRate"
+                    name="rating"
                     value={rate}
                     onChange={(e) => setRate(e.target.value)}
-                    placeholder="Enter custom rate"
+                    placeholder="Enter custom rating"
                     className="flex-grow px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                   <button
                     type="button"
                     onClick={() => {
                       setIsCustomRate(false);
-                      setRate('');
+                      setRate("");
                     }}
                     className="px-3 py-2 bg-gray-200 rounded-md text-sm text-gray-700 hover:bg-gray-300"
                   >
@@ -97,12 +142,12 @@ export default function Movie() {
                 </div>
               ) : (
                 <select
-                  id="rate"
-                  name="rate"
-                  onChange={handleRateChange}
+                  id="rating"
+                  name="rating"
+                  onChange={handleChange}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
-                  <option value="">Select movie rate</option>
+                  <option value="">Select movie rating</option>
                   <option value="G">G - General Audience</option>
                   <option value="PG">PG - Parental Guidance Suggested</option>
                   <option value="PG-13">PG-13 - Parents Strongly Cautioned</option>
@@ -118,105 +163,71 @@ export default function Movie() {
               <label htmlFor="genre" className="block text-sm font-medium mb-1">
                 Genre
               </label>
-              {isCustomGenre ? (
-                <div className="flex items-center space-x-2">
-                  <input
-                    type="text"
-                    id="genre"
-                    name="genre"
-                    value={genre}
-                    onChange={(e) => setGenre(e.target.value)}
-                    placeholder="Enter new genre"
-                    className="flex-grow px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setIsCustomGenre(false);
-                      setGenre('');
-                    }}
-                    className="px-3 py-2 bg-gray-200 rounded-md text-sm text-gray-700 hover:bg-gray-300"
-                  >
-                    Cancel
-                  </button>
-                </div>
-              ) : (
-                <select
-                  id="genre"
-                  name="genre"
-                  value={genre}
-                  onChange={handleGenreChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="">Select genre</option>
-                  <option value="Action">Action</option>
-                  <option value="Adventure">Adventure</option>
-                  <option value="Comedy">Comedy</option>
-                  <option value="Drama">Drama</option>
-                  <option value="Horror">Horror</option>
-                  <option value="Romance">Romance</option>
-                  <option value="Sci-Fi">Sci-Fi</option>
-                  <option value="Thriller">Thriller</option>
-                  <option value="Fantasy">Fantasy</option>
-                  <option value="Animation">Animation</option>
-                  <option value="custom">Add New Genre</option>
-                </select>
-              )}
+              <select
+                id="genre"
+                name="genre"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                value={formData.genre}
+                onChange={handleChange}
+              >
+                <option value="">Select genre</option>
+                <option value="Action">Action</option>
+                <option value="Adventure">Adventure</option>
+                <option value="Comedy">Comedy</option>
+                <option value="Drama">Drama</option>
+                <option value="Horror">Horror</option>
+                <option value="Romance">Romance</option>
+                <option value="Sci-Fi">Sci-Fi</option>
+                <option value="Thriller">Thriller</option>
+                <option value="Fantasy">Fantasy</option>
+                <option value="Animation">Animation</option>
+              </select>
             </div>
 
-            {/* Runtime */}
+            {/* Movie Duration */}
             <div>
-              <label htmlFor="runtime" className="block text-sm font-medium mb-1">
-                Runtime (minutes)
+              <label htmlFor="duration" className="block text-sm font-medium mb-1">
+                Duration (minutes)
               </label>
               <input
                 type="number"
-                id="runtime"
-                name="runtime"
+                id="duration"
+                name="duration"
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Enter runtime"
+                placeholder="Enter duration"
+                value={formData.duration}
+                onChange={handleChange}
               />
             </div>
 
-            {/* Rating */}
+            {/* Movie Poster URL (File Upload) */}
             <div>
-              <label htmlFor="rating" className="block text-sm font-medium mb-1">
-                Rating
-              </label>
-              <input
-                type="text"
-                id="rating"
-                name="rating"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Enter movie rating"
-              />
-            </div>
-
-            {/* Movie Poster */}
-            <div>
-              <label htmlFor="poster" className="block text-sm font-medium mb-1">
+              <label htmlFor="posterurl" className="block text-sm font-medium mb-1">
                 Movie Poster (PNG/JPEG)
               </label>
               <input
                 type="file"
-                id="poster"
-                name="poster"
+                id="posterurl"
+                name="posterurl"
                 accept=".png, .jpeg, .jpg"
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                onChange={(e) => handleFileChange(e, "posterurl")}
               />
             </div>
 
             {/* Movie Trailer URL */}
             <div>
-              <label htmlFor="trailer" className="block text-sm font-medium mb-1">
+              <label htmlFor="trailerurl" className="block text-sm font-medium mb-1">
                 Movie Trailer URL
               </label>
               <input
                 type="url"
-                id="trailer"
-                name="trailer"
+                id="trailerurl"
+                name="trailerurl"
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Enter movie trailer URL"
+                placeholder="Enter trailer URL"
+                value={formData.trailerurl}
+                onChange={handleChange}
               />
             </div>
 
@@ -228,22 +239,23 @@ export default function Movie() {
               <textarea
                 id="description"
                 name="description"
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                placeholder="Enter movie description"
+                value={formData.description}
+                onChange={handleChange}
+                placeholder="Enter description"
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                rows={4} // Adjust rows as needed
+                rows={4}
               />
             </div>
+
+            <div className="mt-6">
+              <button
+                type="submit"
+                className="px-6 py-2 bg-blue-500 text-white font-bold rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                Submit
+              </button>
+            </div>
           </form>
-          <div className="mt-6">
-            <button
-              type="submit"
-              className="px-6 py-2 bg-blue-500 text-white font-bold rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              Submit
-            </button>
-          </div>
         </div>
       </div>
     </div>

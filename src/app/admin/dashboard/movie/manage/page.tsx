@@ -7,6 +7,10 @@ interface Movie {
   id: string;
   title: string;
   image: string;
+  duration: Int16Array;
+  rate: string;
+  release_date: string;
+  genre: string;
 }
 
 const ManageMovies = () => {
@@ -23,6 +27,10 @@ const ManageMovies = () => {
           id: movie.movie_id,
           title: movie.title,
           image: movie.posterurl,
+          duration: movie.duration,
+          rate: movie.rate,
+          release_date: movie.release_date,
+          genre: movie.genre
         }));
         setMovies(apiMovies);
         setFilteredMovies(apiMovies); // Set filtered movies initially
@@ -31,18 +39,6 @@ const ManageMovies = () => {
         console.error("Error fetching data:", err);
       });
   }, []);
-
-  const handleAddMovie = (newMovie: Movie) => {
-    axios
-      .post("http://localhost:3000/api/movies", newMovie)
-      .then((response) => {
-        // Directly update the state without re-fetching the list
-        setMovies((prevMovies) => [...prevMovies, newMovie]);
-      })
-      .catch((error) => {
-        console.error("Error adding movie:", error);
-      });
-  };
   
 
   // Handle search query change
@@ -114,19 +110,22 @@ const ManageMovies = () => {
                 {/* Movie Info on the Right */}
                 <div className="flex-1">
                   <h3 className="text-xl font-semibold">{movie.title}</h3>
-                  <p className="text-gray-600">Some description or details about the movie can go here.</p>
+                  <p className="text-gray-600">Duration: {Math.floor(Number(movie.duration) / 60)} hours {Number(movie.duration) % 60} minutes</p>
+                  <p className="text-gray-600">Movies Rate: {movie.rate}</p>
+                  <p className="text-gray-600">Release Date: {new Date(movie.release_date).toLocaleDateString('en-US')}</p>
+                  <p className="text-gray-600">Genre: {movie.genre}</p>
                 </div>
 
                 {/* Edit/Delete Buttons */}
                 <div className="ml-4 flex flex-col justify-center items-center">
                   <button
-                    className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 mb-2"
+                    className="bg-blue-500 text-white px-4 py-2 w-[75px] rounded-md hover:bg-blue-600 mb-2"
                     onClick={() => handleEdit(movie.id)}
                   >
                     Edit
                   </button>
                   <button
-                    className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600"
+                    className="bg-red-500 text-white px-4 py-2 w-[75px] rounded-md hover:bg-red-600"
                     onClick={() => handleDelete(movie.id)}
                   >
                     Delete
