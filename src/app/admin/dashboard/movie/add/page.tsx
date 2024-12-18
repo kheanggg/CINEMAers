@@ -4,14 +4,14 @@ import React, { useState } from "react";
 
 export default function Movie() {
   const [formData, setFormData] = useState({
-    "title": "",
-    "release_date": "",
-    "rating": "",
-    "genre": "",
-    "duration": "",
-    "posterurl": "",
-    "trailerurl": "",
-    "description": "",
+    title: "",
+    release_date: "",
+    rating: "",
+    genre: "",
+    duration: "",
+    posterurl: "",
+    trailerurl: "",
+    description: "",
   });
 
   const [isCustomRate, setIsCustomRate] = useState(false); // Toggle for custom rate input
@@ -60,14 +60,14 @@ export default function Movie() {
         body: JSON.stringify(dataToSend),
       });
 
-    const responseData = await response.json();
+      const responseData = await response.json();
     
-    if (response.ok) {
-      alert("Movie added successfully!");
-    } else {
-      console.error("Error:", responseData.message);
-      alert(`Failed to add the movie: ${responseData.message}`);
-    }
+      if (response.ok) {
+        alert("Movie added successfully!");
+      } else {
+        console.error("Error:", responseData.message);
+        alert(`Failed to add the movie: ${responseData.message}`);
+      }
 
     } catch (error) {
       console.error("Error:", error);
@@ -76,8 +76,8 @@ export default function Movie() {
   };
 
   return (
-    <div className="text-black h-screen bg-gray-100">
-      <div className="p-6">
+    <div className="text-black h-screen bg-gray-100 flex flex-col">
+      <div className="p-6 flex-grow">
         <h1 className="text-3xl mb-4">Add Movie</h1>
         <div className="bg-white shadow-md rounded-lg p-6">
           <h2 className="text-xl mb-4">Movie Details</h2>
