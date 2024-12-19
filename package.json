@@ -16,8 +16,10 @@
     "@mui/material": "^6.1.10",
     "@prisma/client": "^6.0.1",
     "axios": "^1.7.9",
+    "bcrypt": "^5.1.1",
     "i": "^0.3.7",
     "next": "15.0.4",
+    "next-auth": "^4.24.11",
     "pg": "^8.13.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
@@ -27,6 +29,7 @@
     "zod": "^3.24.1"
   },
   "devDependencies": {
+    "@types/bcrypt": "^5.0.2",
     "@types/node": "^20",
     "@types/pg": "^8.11.10",
     "@types/react": "^19",
