@@ -6,17 +6,17 @@ import { compare } from "bcrypt"; // For password comparison
 import prisma from "@/app/lib/prisma"; // Your Prisma client instance
 
 // Extend the session type to include `id` and `provider`
-declare module "next-auth" {
-  interface Session {
-    user: {
-      name?: string | null;
-      email?: string | null;
-      image?: string | null;
-      id?: string; // Add the `id` field
-      provider?: string; // Add the `provider` field
-    };
-  }
-}
+// declare module "next-auth" {
+//   interface Session {
+//     user: {
+//       name?: string | null;
+//       email?: string | null;
+//       image?: string | null;
+//       id?: string; // Add the `id` field
+//       provider?: string; // Add the `provider` field
+//     };
+//   }
+// }
 
 export const authOptions: AuthOptions = {
   providers: [

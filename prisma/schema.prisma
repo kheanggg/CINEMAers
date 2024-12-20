@@ -40,3 +40,11 @@ model users {
   updated_at     DateTime?        @default(now()) @db.Timestamp(6)
   auth_providers auth_providers[]
 }
+
+model admin {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique @db.VarChar(255)
+  password  String   @db.VarChar(255)
+  role      String   @default("admin") @db.VarChar(255)
+  createdAt DateTime @default(now()) @db.Timestamptz(6)
+}
