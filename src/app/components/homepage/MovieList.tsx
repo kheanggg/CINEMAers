@@ -26,45 +26,49 @@ const MovieCard = ({ movie }: { movie: Movie }) => {
           <span className="text-2xl font-normal text-white">{movie.title}</span>
         </div>
         <div className="grid grid-cols-3 gap-2 h-full">
-            <div className="h-full object-cover rounded">
-              <img 
-                src={`/images/legend.png`} 
-                className="w-full object-cover rounded"
-              />
-            </div>
+          <div className="h-full object-cover rounded">
+            <img 
+              src={`/images/legend.png`} 
+              className="w-full object-cover rounded"
+            />
+          </div>
         </div>
       </div>
     </Link>
   );
 };
 
-const MovieList = () => {
+const MovieList = ({ isComingSoon }: { isComingSoon: boolean }) => {
   const [movies, setMovies] = useState<Movie[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
     const fetchMovies = async () => {
+      setLoading(true); // Start loading state
       try {
-        const response = await fetch('/api/movies');
+        const response = await fetch(`/api/movies?iscomingsoon=${isComingSoon}`);
         const data = await response.json();
         setMovies(data);
       } catch (err) {
         console.error('Error fetching data:', err);
+      } finally {
+        setLoading(false); // Stop loading state
       }
     };
   
     fetchMovies();
-  }, []);
+  }, [isComingSoon]); // Fetch data whenever isComingSoon changes
 
   return (
     <div className="mx-auto xs:w-[360px] sm:w-[390px] md:w-[750px] lg:w-[900px] xl:w-[1125px]">
       <div className="grid xs:grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
-        {movies.length > 0 ? (
-          movies.map((movie) => (
-            <MovieCard key={movie.movie_id} movie={movie} />
-          ))
-        ) : (
+        {loading ? (
           Array(4).fill(null).map((_, index) => (
             <SkeletonCard key={index} />
+          ))
+        ) : (
+          movies.map((movie) => (
+            <MovieCard key={movie.movie_id} movie={movie} />
           ))
         )}
       </div>

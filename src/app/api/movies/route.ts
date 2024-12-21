@@ -37,6 +37,7 @@ export async function GET(request: NextRequest) {
   // Extract query parameters from the URL
   const id = searchParams.get('id');
   const genre = searchParams.get('genre');
+  const iscomingsoon = searchParams.get('iscomingsoon');
   const title = searchParams.get('title');
   const page = parseInt(searchParams.get('page') || '1', 10); // Default to page 1
   const limit = parseInt(searchParams.get('limit') || '10', 10); // Default to limit 10
@@ -55,6 +56,14 @@ export async function GET(request: NextRequest) {
       mode: 'insensitive',
     };
   }
+
+  if (iscomingsoon !== null && iscomingsoon !== undefined) {
+    where.iscomingsoon = iscomingsoon === 'true';
+  } else {
+    // Handle cases where `isComingSoon` is not set
+    console.log("No isComingSoon filter applied.");
+  }
+  
 
   if (title) {
     where.title = {
@@ -123,6 +132,42 @@ export async function POST(request: NextRequest) {
 
 // Handle PATCH requests (Update an existing movie)
 export async function PATCH(request: NextRequest) {
+  const { searchParams } = new URL(request.url);
+  const id = searchParams.get('id'); // Get the movie ID from the query parameters
+
+  if (!id) {
+    return NextResponse.json({ message: 'Movie ID is required.' }, { status: 400 });
+  }
+
+  const body = await request.json(); // Parse the request body
+  const validation = updateMovie.safeParse(body); // Validate the input using Zod schema
+
+  if (!validation.success) {
+    return NextResponse.json(validation.error.errors, { status: 400 });
+  }
+
+  try {
+    // If there's a release_date in the request body, format it
+    const updatedData = body.release_date
+      ? { ...body, release_date: new Date(body.release_date) }
+      : body;
+
+    // Update the movie in the database
+    const updatedMovie = await prisma.movies.update({
+      where: { movie_id: Number(id) },
+      data: updatedData,
+    });
+
+    // Return the updated movie as a response
+    return NextResponse.json(updatedMovie);
+  } catch (error) {
+    console.error('Error partially updating movie:', error);
+    return NextResponse.json({ message: 'Error partially updating movie.' }, { status: 500 });
+  }
+}
+
+// Handle PUT requests (Update an existing movie)
+export async function PUT(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const id = searchParams.get('id'); // Get the movie ID from the query parameters
 
