@@ -1,5 +1,5 @@
 import { compare } from "bcrypt";
-import jwt from "jsonwebtoken";
+import { SignJWT } from "jose";  // Import SignJWT from jose
 import prisma from "@/app/lib/prisma"; // Your Prisma client
 import { NextRequest, NextResponse } from "next/server";
 
@@ -20,8 +20,6 @@ export async function POST(req: NextRequest) {
     // Fetch the admin user from the database
     const admin = await prisma.admin.findUnique({ where: { email } });
 
-    // console.log(admin);
-
     if (!admin) {
       return NextResponse.json(
         { message: "Invalid email or password" },
@@ -39,33 +37,26 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Make sure admin is a valid object before generating the JWT
+    // Ensure admin is a valid object before generating the JWT
     if (!admin || !admin.id || !admin.role) {
       throw new Error("Invalid admin data");
     }
 
-    // Log the admin object to ensure it's valid
-    // console.log("Admin found:", admin);
-
-    // Generate a JWT token
-    const token = jwt.sign(
-      { id: admin.id, role: admin.role },
-      process.env.JWT_SECRET!,
-      { expiresIn: "1h" }
-    );
-
-    // console.log("Generated JWT Token:", token);  // Add this line to see the generated tok
+    // Generate a JWT token using jose's SignJWT
+    const secret = new TextEncoder().encode(process.env.JWT_SECRET!); // Encode the secret key as a Uint8Array
+    const token = await new SignJWT({ id: admin.id, role: admin.role })
+      .setProtectedHeader({ alg: 'HS256', typ: 'JWT' })  // Set the header with the signing algorithm (HS256) and type (JWT)
+      .setExpirationTime("1h")  // Set token expiry to 1 hour
+      .sign(secret);  // Sign the token with the secret
 
     // Set the token in the response cookies
     const response = NextResponse.json({ message: "Login successful" });
     response.cookies.set("token", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      secure: process.env.NODE_ENV === "production", // Use secure cookies in production
       path: "/",
-      maxAge: 3600,
+      maxAge: 3600, // 1 hour
     });
-
-    // console.log("Token set in cookies:", token); // This line confirms token is being set in the cookies
 
     return response;
   } catch (error) {
