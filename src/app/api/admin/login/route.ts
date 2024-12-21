@@ -20,6 +20,8 @@ export async function POST(req: NextRequest) {
     // Fetch the admin user from the database
     const admin = await prisma.admin.findUnique({ where: { email } });
 
+    // console.log(admin);
+
     if (!admin) {
       return NextResponse.json(
         { message: "Invalid email or password" },
@@ -43,7 +45,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Log the admin object to ensure it's valid
-    console.log("Admin found:", admin);
+    // console.log("Admin found:", admin);
 
     // Generate a JWT token
     const token = jwt.sign(
