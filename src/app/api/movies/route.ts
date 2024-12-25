@@ -1,6 +1,38 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '../../lib/prisma'; // Adjust the path if necessary
 import { z } from 'zod'; // For input validation
+import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
+import formidable from 'formidable';
+
+// Initialize S3 client
+const s3Client = new S3Client({
+    region: process.env.AWS_S3_REGION as string,
+    credentials: {
+        accessKeyId: process.env.AWS_S3_ACCESS_KEY_ID as string,
+        secretAccessKey: process.env.AWS_S3_SECRET_ACCESS_KEY as string,
+    },
+});
+
+// Define a function to upload a file to S3
+async function uploadFileToS3(fileBuffer: Buffer, fileName: string, contentType: string): Promise<string> {
+    const params = {
+        Bucket: process.env.AWS_S3_BUCKET_NAME as string,
+        Key: fileName,
+        Body: fileBuffer,
+        ContentType: contentType, // Use the correct MIME type from the uploaded file
+    };
+
+    const command = new PutObjectCommand(params);
+    await s3Client.send(command);
+
+    // Construct the URI (URL) of the uploaded file
+    const fileUri = `https://${process.env.AWS_S3_BUCKET_NAME}.s3.${process.env.AWS_S3_REGION}.amazonaws.com/${fileName}`;
+
+    // Log the URI of the uploaded file
+    console.log('Uploaded file URI:', fileUri);
+
+    return fileUri; // Return the full URL of the uploaded file
+}
 
 // Define validation schema for creating a new movie
 const createNewMovie = z.object({
@@ -93,19 +125,40 @@ export async function GET(request: NextRequest) {
 
 // Handle POST requests (Create a new movie)
 export async function POST(request: NextRequest) {
-  const body = await request.json(); // Parse the request body
-  console.log(body);
-  const validation = createNewMovie.safeParse(body); // Validate the input using Zod schema
-
-  if (!validation.success) {
-    return NextResponse.json(validation.error.errors, { status: 400 });
-  }
-
-  // Destructure the validated input
-  const { title, description, release_date, duration, genre, rating, posterurl, trailerurl } = body;
-
   try {
-    // Format the release_date as a JavaScript Date object
+    const formData = await request.formData();
+    
+    const title = formData.get('title')?.toString() || '';
+    const description = formData.get('description')?.toString() || '';
+    const release_date = formData.get('release_date')?.toString() || '';
+    const duration = parseInt(formData.get('duration')?.toString() || '0', 10);
+    const genre = formData.get('genre')?.toString() || '';
+    const rating = formData.get('rating')?.toString() || '';
+    const trailerurl = formData.get('trailerurl')?.toString() || '';
+    const poster = formData.get('poster') as File | null;
+
+    // Validate the required fields
+    if (!title || !description || !release_date || !duration || !genre || !rating) {
+      return NextResponse.json({ message: 'Missing required fields' }, { status: 400 });
+    }
+
+    let posterS3Url = ''; // Initialize the poster URL variable
+
+    // If the user has uploaded a poster
+    if (poster) {
+      console.log('Uploading poster:', poster.name);
+
+      // Convert file to buffer
+      const buffer = Buffer.from(await poster.arrayBuffer());
+
+      // Construct a unique file name
+      const fileName = `uploads/posters/${Date.now()}-${poster.name}`;
+
+      // Upload the poster to S3 and get the URL
+      posterS3Url = await uploadFileToS3(buffer, fileName, poster.type);
+    }
+
+    // Format the release date
     const formattedReleaseDate = new Date(release_date);
 
     // Create a new movie in the database
@@ -117,13 +170,14 @@ export async function POST(request: NextRequest) {
         duration,
         genre,
         rating,
-        posterurl,
+        posterurl: posterS3Url,
         trailerurl,
       },
     });
 
-    // Return the created movie as a response
+    // Return the created movie
     return NextResponse.json(newMovie, { status: 201 });
+
   } catch (error) {
     console.error('Error creating movie:', error);
     return NextResponse.json({ message: 'Error creating movie.' }, { status: 500 });

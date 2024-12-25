@@ -16,16 +16,11 @@ export default function Movie() {
 
   const [isCustomRate, setIsCustomRate] = useState(false); // Toggle for custom rate input
   const [rate, setRate] = useState(""); // Stores custom rate input
+  const [file, setFile] = useState<File | null>(null);
 
-  // Function to handle file input (get filename only)
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, field: string) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      // Only store the filename
-      setFormData((prev) => ({
-        ...prev,
-        [field]: file.name,
-      }));
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setFile(e.target.files[0]);
     }
   };
 
@@ -38,7 +33,6 @@ export default function Movie() {
     }));
   };
 
-  // Handle form submission
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -48,27 +42,31 @@ export default function Movie() {
       return;
     }
 
-    const dataToSend = {
-      ...formData,
-      duration: parsedDuration, // Ensure duration is a number
-    };
+    const dataToSend = new FormData();
+    dataToSend.append("title", formData.title);
+    dataToSend.append("release_date", formData.release_date);
+    dataToSend.append("rating", formData.rating);
+    dataToSend.append("genre", formData.genre);
+    dataToSend.append("duration", parsedDuration.toString());
+    dataToSend.append("description", formData.description);
+    dataToSend.append("trailerurl", formData.trailerurl);
 
-    console.log(dataToSend);
+    if (file) {
+      dataToSend.append("poster", file); // 'poster' is the key for the file
+    }
+
     try {
       const response = await fetch("/api/movies", {
         method: "POST",
-        body: JSON.stringify(dataToSend),
+        body: dataToSend,
       });
-
       const responseData = await response.json();
-    
       if (response.ok) {
         alert("Movie added successfully!");
       } else {
         console.error("Error:", responseData.message);
         alert(`Failed to add the movie: ${responseData.message}`);
       }
-
     } catch (error) {
       console.error("Error:", error);
       alert("An error occurred while adding the movie.");
@@ -209,9 +207,9 @@ export default function Movie() {
                 type="file"
                 id="posterurl"
                 name="posterurl"
-                accept=".png, .jpeg, .jpg"
+                accept="image/*"
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                onChange={(e) => handleFileChange(e, "posterurl")}
+                onChange={handleFileChange}
               />
             </div>
 
