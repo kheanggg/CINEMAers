@@ -7,22 +7,22 @@ import ShowTime from './ShowTime';
 import Comment from './Comment/Comment';
 
 interface Movie {
-    id: string;
+    movie_id: number;
     title: string;
-    posterURL: string;
-    duration: number;
+    posterurl: string;
     description: string;
-    releaseDate: string;
-    genre:string;
-    movieRate: string;
-    trailerURL: string;
+    release_date: string;
+    duration: number;
+    genre: string;
+    rating: string;
+    trailerurl: string;
 }
 interface MovieDetailProps {
     movie: Movie;
   }
 
 export const MovieDetail: React.FC<MovieDetailProps> = ({ movie }) => {
-    const { title, posterURL, duration, description, releaseDate, genre, movieRate, trailerURL} = movie;
+    const { title, posterurl, duration, description, release_date, genre, rating, trailerurl} = movie;
     return (
         <div className="items-center justify-center mx-auto my-12 xs:w-[360px] sm:w-[390px] md:w-[750px] lg:w-[900px] xl:w-[1125px]">
             <div className="flex items-center justify-center">
@@ -30,8 +30,8 @@ export const MovieDetail: React.FC<MovieDetailProps> = ({ movie }) => {
                     <div className="xs:hidden sm:block">
                         <div className="h-full object-cover rounded">
                             <img
-                                src={posterURL}
-                                className="object-cover rounded"
+                                src={posterurl}
+                                className="object-cover rounded-xl"
                             />
                         </div>
                     </div>
@@ -54,7 +54,7 @@ export const MovieDetail: React.FC<MovieDetailProps> = ({ movie }) => {
                             </svg>
                             </div>
                             <span className="text-Gray mx-1">Movie Rate:</span>
-                            <span>{movieRate}</span>
+                            <span>{rating}</span>
                         </div>
                         <div className="flex items-center">
                             <div className="w-7">
@@ -63,7 +63,7 @@ export const MovieDetail: React.FC<MovieDetailProps> = ({ movie }) => {
                             </svg>
                             </div>
                             <span className="text-Gray mx-1">Release Date:</span>
-                            <span>{releaseDate}</span>
+                            <span>{release_date}</span>
                         </div>
                         <div className="flex items-center">
                             <div className="w-7">
@@ -104,7 +104,7 @@ export const MovieDetail: React.FC<MovieDetailProps> = ({ movie }) => {
                         <MovieDescription description={description} />
                     </div>
                     <div className="sm:order-last xs:order-first col-span-3 sm:col-span-2 xs:col-span-1 md:col-span-3">
-                        <TrailerPlayer url={trailerURL}/>
+                        <TrailerPlayer url={trailerurl}/>
                     </div>
                     <div className="xl:col-span-3 order-last">
                         

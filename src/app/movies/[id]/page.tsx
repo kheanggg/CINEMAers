@@ -1,6 +1,8 @@
 "use client";
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'next/navigation'; // Use useParams from next/navigation
+import { useParams } from 'next/navigation';
+import { MovieDetail } from '../../components/movies/MovieDetail';
+import Footer from '@/app/components/homepage/slider/footer/Footer';
 
 // Define Movie interface to match the detailed data structure
 interface Movie {
@@ -15,7 +17,7 @@ interface Movie {
   trailerurl: string;
 }
 
-const MovieDetail = () => {
+const MovieDetails = () => {
   const { id } = useParams(); // Access the 'id' param from the URL
   const [movie, setMovie] = useState<Movie | null>(null); // State to store movie data
   const [loading, setLoading] = useState(true); // Loading state
@@ -56,17 +58,15 @@ const MovieDetail = () => {
   }
 
   return (
-    <div className="movie-detail">
-      <img src={movie.posterurl} alt={movie.title} className="movie-poster" />
-      <h1>{movie.title}</h1>
-      <p>{movie.description}</p>
-      <p><strong>Release Date:</strong> {new Date(movie.release_date).toLocaleDateString()}</p>
-      <p><strong>Duration:</strong> {movie.duration} minutes</p>
-      <p><strong>Genre:</strong> {movie.genre}</p>
-      <p><strong>Rating:</strong> {movie.rating}</p>
-      <a href={movie.trailerurl} target="_blank" rel="noopener noreferrer">Watch Trailer</a>
-    </div>
+    <div>
+          <div className=" lg:flex justify-between items-center mx-auto xs:w-10/12 sm:w-10/12 md:w-9/12 lg:w-8/12 xl:w-7/12">
+          </div>
+          <div className="mt-[90px]">
+            <MovieDetail movie={movie} />
+          </div>
+          <Footer/>
+        </div>
   );
 };
 
-export default MovieDetail;
+export default MovieDetails;

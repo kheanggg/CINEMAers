@@ -9,7 +9,7 @@ const ReactPlayer = dynamic(() => import("react-player"), { ssr: false });
 const TrailerPlayer: React.FC<{ url: string }> = ({ url }) => {
   return (
     <div className="flex justify-center items-center">
-      <ReactPlayer url={url} controls width="100%" height="250px"/>
+      <ReactPlayer url={url} controls width="100%" height="500px"/>
     </div>
   );
 };

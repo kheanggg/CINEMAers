@@ -26,7 +26,13 @@ const AlertPage: React.FC<AlertPageProps> = ({ type, message, autoCloseDuration 
   };
 
   return (
-    <Box sx={{ width: '100%' }}>
+    <Box sx={{
+      position: 'fixed',        // Fixed positioning to keep it visible on the screen
+      top: 20,                  // Distance from the top of the screen
+      right: 20,                // Distance from the right edge
+      width: 'auto',            // Automatically adjust width based on content
+      zIndex: 9999,             // Ensure it stays on top of other elements
+    }}>
       <Collapse in={open}>
         <Alert
           severity={type}
