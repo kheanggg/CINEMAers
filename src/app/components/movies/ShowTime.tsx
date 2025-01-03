@@ -1,135 +1,53 @@
-import React, { useState } from 'react';
-import Dialog from '@mui/material/Dialog';
-import DialogTitle from '@mui/material/DialogTitle';
-import DialogContent from '@mui/material/DialogContent';
-import DialogActions from '@mui/material/DialogActions';
-import Button from '@mui/material/Button';
-import ChairIcon from '@mui/icons-material/Chair';
-import PlaceIcon from '@mui/icons-material/Place';
+import React, { useState } from "react";
+import Button from "@mui/material/Button";
+import PlaceIcon from "@mui/icons-material/Place";
+import SeatSelection from "@/app/components/Booking/SeatSelection";
+import ConfirmBooking from "../Booking/ConfirmBooking";
+import SuccessfulBooking from "../Booking/SuccessfulBooking";
 
 interface Showtime {
   location: string;
   times: string[];
 }
 
-export default function ShowTime() {
-  const [open, setOpen] = useState(false);
-  const [selectedTime, setSelectedTime] = useState<string>('');
-  const [selectedSeats, setSelectedSeats] = useState<number[]>([]);
+interface MovieDetails {
+  movie_id: number;
+  title: string;
+  posterurl: string;
+  duration: number;
+  genre: string;
+}
+
+export default function ShowTime({ movieDetails }: { movieDetails: MovieDetails }) {
+  const { movie_id, title, posterurl, duration, genre } = movieDetails;
+
+  const [showSeatSelection, setShowSeatSelection] = useState(false);
+  const [showConfirmBooking, setShowConfirmBooking] = useState(false);
+  const [showSuccessfulBooking, setShowSuccessfulBooking] = useState(false);
+  const [selectedTime, setSelectedTime] = useState<string | null>(null);
+  const [selectedLocation, setSelectedLocation] = useState<string | null>(null);
+  const [selectedSeats, setSelectedSeats2] = useState<{ [key: string]: boolean }>({});
 
   const showtimes: Showtime[] = [
     {
-      location: 'AEON MALL MEANCHEY (LEGEND CINEMA)',
+      location: "AEON MALL MEANCHEY (LEGEND CINEMA)",
       times: Array.from({ length: 10 }, (_, i) => `12:${10 + i}`),
     },
     {
-      location: 'THE OLYMPIA MALL (LEGEND CINEMA)',
+      location: "THE OLYMPIA MALL (LEGEND CINEMA)",
       times: Array.from({ length: 7 }, (_, i) => `14:${10 + i}`),
     },
     {
-      location: 'SHOPPING SORYA CENTER (MAJOR CINEPLEX)',
+      location: "SHOPPING SORYA CENTER (MAJOR CINEPLEX)",
       times: Array.from({ length: 5 }, (_, i) => `16:${10 + i}`),
     },
   ];
 
-  const handleOpen = (time: string) => {
+  const handleTimeSelection = (time: string, location: string) => {
     setSelectedTime(time);
-    setOpen(true);
+    setSelectedLocation(location);
+    setShowSeatSelection(true);
   };
-
-  const handleClose = () => {
-    setOpen(false);
-    setSelectedSeats([]);
-  };
-
-  const toggleSeatSelection = (seatNumber: number) => {
-    setSelectedSeats((prev) =>
-      prev.includes(seatNumber)
-        ? prev.filter((seat) => seat !== seatNumber)
-        : [...prev, seatNumber]
-    );
-  };
-
-  const renderSeats = () => {
-    const seatsPerRow = 10;  // Define 10 seats per row
-    const rows = 6;  // Define 6 rows (A to F)
-  
-    const seatLabels = ['A', 'B', 'C', 'D', 'E', 'F']; // Row labels (6 rows)
-  
-    return (
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'auto repeat(10, 36px)', // First column for labels, 10 columns for seats
-          gap: '5px', // Minimal spacing between seats
-          justifyContent: 'center', // Center grid horizontally
-          marginTop: '10px', // Add some space at the top
-        }}
-      >
-        {Array.from({ length: rows }).map((_, rowIndex) => (
-          <>
-            {/* Row Label */}
-            <div
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: '20px',
-                color: 'white',
-                marginRight: '15px',
-              }}
-            >
-              {seatLabels[rowIndex]} {/* Label for the row (A, B, C, etc.) */}
-            </div>
-  
-            {/* Seats */}
-            {Array.from({ length: seatsPerRow }).map((_, seatIndex) => {
-              const seatLabel = `${seatLabels[rowIndex]}${seatIndex + 1}`;  // Combine row label with seat number (e.g., A1, B2)
-  
-              const isSelected = selectedSeats.includes(seatLabel);  // Check if the seat is selected
-  
-              return (
-                <div
-                  key={seatLabel}
-                  style={{
-                    position: 'relative',
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    cursor: 'pointer',
-                    fontSize: '14px',
-                    width: '36px',
-                    height: '36px',
-                    borderRadius: '0',  // Make the seat square
-                  }}
-                  onClick={() => toggleSeatSelection(seatLabel)}  // Toggle seat selection
-                >
-                  <ChairIcon
-                    sx={{
-                      fontSize: 36,
-                      color: isSelected ? 'red' : 'white',  // Change color when selected
-                    }}
-                  />
-                  {/* Seat Label Text */}
-                  <span
-                    style={{
-                      position: 'absolute',
-                      fontSize: '15px',
-                      fontWeight: 'bold',
-                      color: isSelected ? 'white' : 'black',  // Change label color when selected
-                    }}
-                  >
-                    {seatLabel}  {/* Display seat label (e.g., A1, B1, C2) */}
-                  </span>
-                </div>
-              );
-            })}
-          </>
-        ))}
-      </div>
-    );
-  };
-  
 
   return (
     <div className="my-8">
@@ -137,76 +55,67 @@ export default function ShowTime() {
       {showtimes.map((show, index) => (
         <div key={index} className="mt-10">
           <div className="flex">
-            <PlaceIcon sx={{ color: 'red', fontSize: 30 }} />
+            <PlaceIcon sx={{ color: "red", fontSize: 30 }} />
             <h4 className="font-thin text-md ml-2">{show.location}</h4>
           </div>
-          <div className="grid grid-cols-5 gap-2 mt-5">
-            {show.times.map((time, i) => (
-              <Button
-                key={i}
-                variant="outlined"
-                onClick={() => handleOpen(time)}
-                sx={{
-                  color: 'white',
-                  borderColor: 'white',
-                  borderRadius: '10px',
-                  '&:hover': {
-                    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                    borderColor: 'white',
-                  },
-                }}
-              >
-                {time}
-              </Button>
-            ))}
+          <div className="grid grid-cols-2">
+            <div className="grid grid-cols-5 gap-x-5 gap-y-5 mt-5">
+              {show.times.map((time, i) => (
+                <Button
+                  key={i}
+                  variant="outlined"
+                  onClick={() => handleTimeSelection(time, show.location)}
+                  sx={{
+                    color: "white",
+                    borderColor: "white",
+                    borderRadius: "10px",
+                    "&:hover": {
+                      backgroundColor: "rgba(255, 255, 255, 0.1)",
+                      borderColor: "white",
+                    },
+                  }}
+                >
+                  {time}
+                </Button>
+              ))}
+            </div>
           </div>
         </div>
       ))}
 
-      <Dialog
-        open={open}
-        onClose={handleClose}
-        maxWidth="md"
-        PaperProps={{
-          style: {
-            backgroundColor: '#1d1d1d',
-            color: '#ffffff',
-            borderRadius: '10px',
-          },
+      <SeatSelection
+        isVisible={showSeatSelection}
+        onClose={() => setShowSeatSelection(false)}
+        setShowConfirmBooking={setShowConfirmBooking}
+        bookingDetails={{
+          movieTitle: title,
+          time: selectedTime!,
+          date: "2025-01-01", // Example static date; replace with dynamic value
+          format: "2D", // Example format; replace as needed
+          hall: "Hall 1", // Example hall; replace as needed
+          cinema: selectedLocation!,
         }}
-      >
-        <DialogTitle className='text-white text-bold'>
-          Choose Seat
-        </DialogTitle>
-        <DialogContent>
-          <div className='grid grid-cols-2'>
-            <div>
-              <h1 className='ml-8 text-center bg-white text-black'>Screen</h1>
-              {renderSeats()}
-            </div>
-          </div>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleClose} sx={{ color: '#ffffff' }}>
-            Cancel
-          </Button>
-          <Button
-            onClick={() => {
-              alert(`Selected Seats: ${selectedSeats.join(', ')}`);
-              handleClose();
-            }}
-            sx={{
-              backgroundColor: '#03dac6',
-              color: '#121212',
-              '&:hover': {
-                backgroundColor: '#00c3a3',
-              },
-            }}
-          >
-            Confirm
-          </Button>
-        </DialogActions>
-      </Dialog>
+        setSelectedSeats2={setSelectedSeats2}
+      />
+      <ConfirmBooking
+        isVisible={showConfirmBooking}
+        onClose={() => setShowConfirmBooking(false)}
+        setShowSuccessfulBooking={setShowSuccessfulBooking}
+        bookingDetails={{
+          movieTitle: title,
+          time: selectedTime!,
+          posterurl: posterurl,
+          date: "2025-01-01", // Example static date; replace with dynamic value
+          format: "2D", // Example format; replace as needed
+          hall: "Hall 1", // Example hall; replace as needed
+          cinema: selectedLocation!,
+          selectedSeats: selectedSeats,
+        }}
+      />
+      <SuccessfulBooking
+        isVisible={showSuccessfulBooking}
+        onClose={() => setShowSuccessfulBooking(false)}
+      />
     </div>
   );
 }
