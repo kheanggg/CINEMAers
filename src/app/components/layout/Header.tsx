@@ -22,6 +22,7 @@ import {
   DialogContent,
   Button
 } from "@mui/material";
+import { useSession } from 'next-auth/react';
 
 // Newsletter Subscription Modal Component
 interface NewsletterModalProps {
@@ -134,6 +135,9 @@ interface Country {
 }
 
 const ResponsiveAppBar: React.FC = () => {
+
+  const { data: session} = useSession();
+
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [hasNotification, setHasNotification] = useState(true);
   const [language, setLanguage] = useState<string>("EN");
@@ -193,21 +197,43 @@ const ResponsiveAppBar: React.FC = () => {
         className="mx-auto xs:w-[360px] sm:w-[390px] md:w-[750px] lg:w-[900px] xl:w-[1125px] top-10 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
       >
         <Toolbar className="px-0 justify-between">
-          <Link href="/login" className="flex gap-3">
-            <IconButton
-              size="large"
-              sx={{
-                backgroundColor: '#414040 !important',
-                color: 'white',
-                '&:hover': {
-                  backgroundColor: '#414040',
-                },
-              }}
-            >
-              <PersonIcon sx={{ fill: 'white' }} />
-            </IconButton>
-            <span className="text-xl flex justify-center items-center">LOG IN</span>
-          </Link>
+        <div className="flex gap-3">
+      {/* Conditionally render LOG IN button or Profile image based on session */}
+      {!session ? (
+        <Link href="/login" className="flex gap-3">
+          <IconButton
+            size="large"
+            sx={{
+              backgroundColor: '#414040 !important',
+              color: 'white',
+              '&:hover': {
+                backgroundColor: '#414040',
+              },
+            }}
+          >
+            <PersonIcon sx={{ fill: 'white' }} />
+          </IconButton>
+          <span className="text-xl flex justify-center items-center">LOG IN</span>
+        </Link>
+      ) : (
+        <div className="flex gap-3 items-center">
+          {/* Profile Image */}
+          <img
+            src={'/default_profile.png'}
+            alt="Profile"
+            style={{
+              width: '45px',
+              height: '45px',
+              borderRadius: '50%',
+              objectFit: 'cover',
+            }}
+          />
+          <span className="text-xl flex justify-center items-center">
+            {session.user?.name || 'User'}
+          </span>
+        </div>
+      )}
+    </div>
 
           <div className="flex gap-3 items-center">
             {/* Notification */}
