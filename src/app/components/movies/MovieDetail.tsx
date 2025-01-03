@@ -108,7 +108,7 @@ export const MovieDetail: React.FC<MovieDetailProps> = ({ movie }) => {
                     </div>
                     <div className="xl:col-span-3 order-last">
                         
-                        <ShowTime/>
+                        <ShowTime movieDetails={movie}/>
                     </div>
                     <div className="xl:col-span-3 order-last">
                         
