@@ -7,17 +7,27 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model movies {
-  movie_id     Int       @id @default(autoincrement())
+model Showtime {
+  showtime_id Int      @id @default(autoincrement())
+  movie_id    Int
+  show_date   DateTime
+  start_time  DateTime
+  runtime     Int
+  movie       Movie    @relation(fields: [movie_id], references: [movie_id])
+}
+
+model Movie {
+  movie_id     Int        @id @default(autoincrement())
   title        String    @db.VarChar(255)
-  description  String?
+  description  String
   release_date DateTime? @db.Date
-  duration     Int?
+  duration     Int
   genre        String?   @db.VarChar(100)
   rating       String?   @db.VarChar(25)
   posterurl    String?   @db.VarChar(255)
   trailerurl   String?   @db.VarChar(255)
-  iscomingsoon Boolean?  @default(false)
+  iscomingsoon Boolean @default(false)  // Make sure this is defined
+  showtimes    Showtime[]
 }
 
 model auth_providers {

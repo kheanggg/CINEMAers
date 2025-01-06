@@ -106,7 +106,7 @@ export async function GET(request: NextRequest) {
 
   try {
     // Fetch movies from the database with filters, pagination, and limiting
-    const movies = await prisma.movies.findMany({
+    const movies = await prisma.movie.findMany({
       where,        // Apply the filters (if any)
       skip,         // Pagination: skip records based on page
       take: limit,  // Pagination: limit the number of records returned
@@ -162,7 +162,7 @@ export async function POST(request: NextRequest) {
     const formattedReleaseDate = new Date(release_date);
 
     // Create a new movie in the database
-    const newMovie = await prisma.movies.create({
+    const newMovie = await prisma.movie.create({
       data: {
         title,
         description,
@@ -207,7 +207,7 @@ export async function PATCH(request: NextRequest) {
       : body;
 
     // Update the movie in the database
-    const updatedMovie = await prisma.movies.update({
+    const updatedMovie = await prisma.movie.update({
       where: { movie_id: Number(id) },
       data: updatedData,
     });
@@ -243,7 +243,7 @@ export async function PUT(request: NextRequest) {
       : body;
 
     // Update the movie in the database
-    const updatedMovie = await prisma.movies.update({
+    const updatedMovie = await prisma.movie.update({
       where: { movie_id: Number(id) },
       data: updatedData,
     });
@@ -267,7 +267,7 @@ export async function DELETE(request: NextRequest) {
 
   try {
     // Delete the movie from the database
-    await prisma.movies.delete({
+    await prisma.movie.delete({
       where: { movie_id: Number(id) },
     });
 
