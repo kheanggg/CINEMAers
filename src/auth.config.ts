@@ -9,12 +9,18 @@ import prisma from "@/app/lib/prisma";
 declare module "next-auth" {
   interface Session {
     user: {
-      id?: string;
+      id: string;
       name?: string | null;
       email?: string | null;
       image?: string | null;
       provider?: string;
     };
+  }
+
+  interface JWT {
+    id?: string; // Add `id` field
+    name?: string;
+    email?: string;
   }
 }
 
@@ -116,8 +122,10 @@ export const authOptions: AuthOptions = {
       }
       return true;
     },
+
     async jwt({ token, user, account }) {
       if (account && user) {
+        token.id = user.id as string;
         token.name = user.name;
         token.email = user.email;
       }
@@ -126,7 +134,7 @@ export const authOptions: AuthOptions = {
     async session({ session, token }) {
       if (token) {
         session.user = {
-          ...session.user,
+          id: token.id as string,
           name: token.name,
           email: token.email,
         };

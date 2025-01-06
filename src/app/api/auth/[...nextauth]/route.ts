@@ -50,17 +50,15 @@ export const authOptions: AuthOptions = {
           throw new Error("Email and Password are required.");
         }
 
-        // Query the database for the user by email
         const user = await prisma.users.findUnique({
           where: { email },
-          include: { auth_providers: true }, // Include related auth providers
+          include: { auth_providers: true },
         });
 
         if (!user) {
           throw new Error("No user found with this email.");
         }
 
-        // Find the credentials-based login for the user
         const authProvider = user.auth_providers.find(
           (provider) => provider.provider === "credentials"
         );
@@ -69,7 +67,6 @@ export const authOptions: AuthOptions = {
           throw new Error("No password found for this user.");
         }
 
-        // Validate the password
         const isValid = await compare(password, authProvider.password);
         if (!isValid) {
           throw new Error("Invalid password.");
@@ -97,15 +94,16 @@ export const authOptions: AuthOptions = {
     async signIn({ user, account }) {
       if (account && account.provider === "google") {
         const email = user.email;
-
+    
         if (!email) {
           throw new Error("Email is required for OAuth sign-in");
         }
-        // If the user is signing in with Google, check if they already exist in the database
+    
+        // Use `sub` (Google's unique identifier) to fetch the user record
         const existingUser = await prisma.users.findUnique({
           where: { email },
         });
-
+    
         // If the user doesn't exist, create a new user record
         if (!existingUser) {
           await prisma.users.create({
@@ -116,23 +114,26 @@ export const authOptions: AuthOptions = {
               auth_providers: {
                 create: {
                   provider: account.provider,
-                  provider_id:
-                    typeof account.id === "string"
-                      ? account.id
-                      : account.id?.toString() ?? null,
+                  provider_id: account.id?.toString() ?? null,
                 },
               },
             },
           });
         }
+    
+        // Ensure the user object returned has the ID from the database
+        user.id = existingUser?.id?.toString() ?? "";
       }
+    
       return true;
     },
+    
 
-    async jwt({ token, user, account }) {
-      if (account && user) {
+    async jwt({ token, user }) {
+      if (user) {
         token.name = user.name;
         token.email = user.email;
+        token.id = user.id
       }
       return token;
     },
@@ -140,7 +141,7 @@ export const authOptions: AuthOptions = {
     async session({ session, token }) {
       if (token) {
         session.user = {
-          ...session.user,
+          id: token.id as string,
           name: token.name,
           email: token.email,
         };
