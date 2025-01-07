@@ -80,7 +80,7 @@ const CommentSection: React.FC = () => {
   };
 
   return (
-    <div className="h-screen flex flex-col bg-black text-gray-200">
+    <div className="h-[475px] flex flex-col text-gray-200">
       {/* Header */}
       <div className="flex items-center gap-2 p-4 border-b border-gray-800">
         <MessageCircle className="w-5 h-5" />
@@ -122,26 +122,30 @@ const CommentSection: React.FC = () => {
       </div>
 
       {/* Fixed Comment Input Section */}
-      <div className="border-t border-gray-800 bg-black p-4">
-        <form onSubmit={handleSubmitComment}>
-          <textarea
-            className="w-full p-4 rounded-lg bg-gray-900 border border-gray-800 
-                     focus:ring-2 focus:ring-blue-500 focus:border-transparent
-                     placeholder-gray-500 resize-none mb-3"
-            rows={3}
-            placeholder="Write a comment..."
-            value={newComment}
-            onChange={(e) => setNewComment(e.target.value)}
-          />
-          <button
-            type="submit"
-            className="px-4 py-2 bg-red-600 text-white rounded-lg 
-                     hover:bg-red-700 transition-colors float-right"
-          >
-            Post Comment
-          </button>
-        </form>
-      </div>
+      <div className="border-t border-gray-800 p-4">
+  <form 
+    onSubmit={handleSubmitComment} 
+    className="flex items-center gap-2"
+  >
+    <textarea
+      className="w-2/3 p-2 rounded-lg bg-gray-900 border border-gray-800 
+                 focus:ring-2 focus:ring-blue-500 focus:border-transparent
+                 placeholder-gray-500 resize-none"
+      rows={1}
+      placeholder="Write a comment..."
+      value={newComment}
+      onChange={(e) => setNewComment(e.target.value)}
+    />
+    <button
+      type="submit"
+      className="px-4 py-2 bg-red-600 text-white rounded-lg 
+                 hover:bg-red-700 transition-colors"
+    >
+      Post Comment
+    </button>
+  </form>
+</div>
+
     </div>
   );
 };

@@ -5,6 +5,7 @@ import MovieDescription from './MovieDescription';
 import MovieTitle from './MovieTitle';
 import ShowTime from './ShowTime';
 import Comment from './Comment/Comment';
+import CommentSection from './CommentSection';
 
 interface Movie {
     movie_id: number;
@@ -112,7 +113,7 @@ export const MovieDetail: React.FC<MovieDetailProps> = ({ movie }) => {
                     </div>
                     <div className="xl:col-span-3 order-last">
                         
-                        <Comment/>
+                        <CommentSection />
                     </div>
                 </div>
             </div>
