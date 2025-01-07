@@ -133,7 +133,7 @@ export const authOptions: AuthOptions = {
       if (user) {
         token.name = user.name;
         token.email = user.email;
-        token.id = user.id
+        token.id = user.id;
       }
       return token;
     },
