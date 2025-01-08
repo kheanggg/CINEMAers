@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "Cinema" ALTER COLUMN "openHour" SET DATA TYPE TEXT,
+ALTER COLUMN "closeHour" SET DATA TYPE TEXT;

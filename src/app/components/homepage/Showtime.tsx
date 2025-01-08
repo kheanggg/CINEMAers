@@ -1,6 +1,5 @@
 "use client";
-
-import React, { useState } from 'react';
+import React, { useState } from "react";
 
 interface DateInfo {
   dayName: string;
@@ -8,9 +7,13 @@ interface DateInfo {
   monthName: string;
 }
 
-export default function Showtime() {
-  const [selectedIndex, setSelectedIndex] = useState<number>(0); // Type the state
+interface ShowtimeProps {
+  selectedDate: Date;
+  setSelectedDate: (date: Date) => void;
+}
 
+export default function Showtime({ selectedDate, setSelectedDate }: ShowtimeProps) {
+  const [selectedIndex, setSelectedIndex] = useState<number>(0);
   const today = new Date();
 
   const formatWithLeadingZero = (num: number): string => {
@@ -18,13 +21,13 @@ export default function Showtime() {
   };
 
   const getDateInfo = (date: Date): DateInfo => {
-    const dayName = date.toLocaleString('default', { weekday: 'long' }).toUpperCase();
+    const dayName = date.toLocaleString("default", { weekday: "long" }).toUpperCase();
     const day = formatWithLeadingZero(date.getDate());
-    const monthName = date.toLocaleString('default', { month: 'short' }).toUpperCase();
+    const monthName = date.toLocaleString("default", { month: "short" }).toUpperCase();
     return { dayName, day, monthName };
   };
 
-  const dates: DateInfo[] = []; // Type the dates array
+  const dates: DateInfo[] = [];
   for (let index = 0; index < 8; index++) {
     const nextDate = new Date(today);
     nextDate.setDate(today.getDate() + index);
@@ -33,18 +36,21 @@ export default function Showtime() {
 
   const handleClick = (index: number) => {
     setSelectedIndex(index);
+    const selected = new Date(today);
+    selected.setDate(today.getDate() + index);
+    setSelectedDate(selected);
   };
 
   return (
     <>
       <style jsx>{`
         .scrollbar-hide-y::-webkit-scrollbar {
-          display: none; /* Hides the scrollbar in Webkit browsers */
+          display: none;
         }
 
         .scrollbar-hide-y {
-          -ms-overflow-style: none; /* Hides scrollbar in IE */
-          scrollbar-width: none; /* Hides scrollbar in Firefox */
+          -ms-overflow-style: none;
+          scrollbar-width: none;
         }
       `}</style>
 
@@ -55,19 +61,27 @@ export default function Showtime() {
             onClick={() => handleClick(index)}
             className={`xl:w-[10.25rem] lg:w-[10.25rem] md:w-[8rem] sm:w-[4.5rem] xs:w-[4rem] xs:py-0 flex flex-col flex-shrink-0 items-center justify-center 
                         rounded-lg shadow-md cursor-pointer border-2
-                        ${index === selectedIndex ? 'border-red-500' : 'border-white'}`}
+                        ${index === selectedIndex ? "border-red-500" : "border-white"}`}
           >
-            <span className="text-white xs:text-[11px] xs:text-[11px] md:text-[13px]">
+            <span className="text-white xs:text-[11px] md:text-[13px]">
               {dateInfo.dayName.slice(0, 3)}
             </span>
-            <span className="text-white xs:text-[15px] xs:text-[20px] font-bold">
+            <span className="text-white xs:text-[20px] font-bold">
               {dateInfo.day}
             </span>
-            <span className="text-white xs:text-[11px] xs:text-[11px] md:text-[13px]">
+            <span className="text-white xs:text-[11px] md:text-[13px]">
               {dateInfo.monthName.slice(0, 3)}
             </span>
           </div>
         ))}
+      </div>
+
+      <div className="mt-6 text-center text-white">
+        <h3 className="text-lg font-bold">Selected Date</h3>
+        <p className="text-xl">
+          {dates[selectedIndex].dayName}, {dates[selectedIndex].monthName}{" "}
+          {dates[selectedIndex].day}, 2025
+        </p>
       </div>
     </>
   );

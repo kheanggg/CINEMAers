@@ -107,11 +107,9 @@ export const MovieDetail: React.FC<MovieDetailProps> = ({ movie }) => {
                         <TrailerPlayer url={trailerurl}/>
                     </div>
                     <div className="xl:col-span-3 order-last">
-                        
                         <ShowTime movieDetails={movie}/>
                     </div>
                     <div className="xl:col-span-3 order-last">
-                        
                         <Comment/>
                     </div>
                 </div>

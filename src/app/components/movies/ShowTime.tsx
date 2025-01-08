@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 import Button from "@mui/material/Button";
 import PlaceIcon from "@mui/icons-material/Place";
 import SeatSelection from "@/app/components/Booking/SeatSelection";
@@ -7,7 +8,7 @@ import SuccessfulBooking from "../Booking/SuccessfulBooking";
 
 interface Showtime {
   location: string;
-  times: string[];
+  times: { date: string; time: string }[];
 }
 
 interface MovieDetails {
@@ -21,6 +22,11 @@ interface MovieDetails {
 export default function ShowTime({ movieDetails }: { movieDetails: MovieDetails }) {
   const { movie_id, title, posterurl, duration, genre } = movieDetails;
 
+  const [showtimes, setShowtimes] = useState<Showtime[]>([]);
+  const [cinemas, setCinemas] = useState<{ [key: number]: string }>({});
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
   const [showSeatSelection, setShowSeatSelection] = useState(false);
   const [showConfirmBooking, setShowConfirmBooking] = useState(false);
   const [showSuccessfulBooking, setShowSuccessfulBooking] = useState(false);
@@ -28,20 +34,56 @@ export default function ShowTime({ movieDetails }: { movieDetails: MovieDetails 
   const [selectedLocation, setSelectedLocation] = useState<string | null>(null);
   const [selectedSeats, setSelectedSeats2] = useState<{ [key: string]: boolean }>({});
 
-  const showtimes: Showtime[] = [
-    {
-      location: "AEON MALL MEANCHEY (LEGEND CINEMA)",
-      times: Array.from({ length: 10 }, (_, i) => `12:${10 + i}`),
-    },
-    {
-      location: "THE OLYMPIA MALL (LEGEND CINEMA)",
-      times: Array.from({ length: 7 }, (_, i) => `14:${10 + i}`),
-    },
-    {
-      location: "SHOPPING SORYA CENTER (MAJOR CINEPLEX)",
-      times: Array.from({ length: 5 }, (_, i) => `16:${10 + i}`),
-    },
-  ];
+  useEffect(() => {
+    const fetchCinemas = async () => {
+      try {
+        const response = await axios.get(`http://localhost:3000/api/cinemas`);
+        const { data } = response.data;
+
+        const cinemaMap = data.reduce((acc: { [key: number]: string }, cinema: any) => {
+          acc[cinema.cinema_id] = cinema.name;
+          return acc;
+        }, {});
+
+        setCinemas(cinemaMap);
+      } catch (err: any) {
+        console.error("Failed to fetch cinemas:", err.message);
+      }
+    };
+
+    fetchCinemas();
+  }, []);
+
+  useEffect(() => {
+    const fetchShowtimes = async () => {
+      try {
+        setLoading(true);
+        const response = await axios.get(`http://localhost:3000/api/showtime`, {
+          params: { movie_id },
+        });
+
+        const { data } = response.data;
+
+        const parsedShowtimes = data.map((item: any) => ({
+          location: cinemas[item.cinema_id] || `Cinema ID: ${item.cinema_id}`,
+          times: [
+            {
+              date: new Date(item.show_date).toLocaleDateString(),
+              time: new Date(item.start_time).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+            },
+          ],
+        }));
+
+        setShowtimes(parsedShowtimes);
+      } catch (err: any) {
+        setError(err.message || "Failed to fetch showtimes.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (Object.keys(cinemas).length > 0) fetchShowtimes();
+  }, [movie_id, cinemas]);
 
   const handleTimeSelection = (time: string, location: string) => {
     setSelectedTime(time);
@@ -49,39 +91,44 @@ export default function ShowTime({ movieDetails }: { movieDetails: MovieDetails 
     setShowSeatSelection(true);
   };
 
+  if (loading) return;
+
+  if (!showtimes || showtimes.length === 0) {
+    return;
+  }
+
+  if (error) return <p>Error: {error}</p>;
+
+
   return (
     <div className="my-8">
       <h3 className="font-thin text-3xl">Showtime</h3>
-      {showtimes.map((show, index) => (
-        <div key={index} className="mt-10">
-          <div className="flex">
-            <PlaceIcon sx={{ color: "red", fontSize: 30 }} />
-            <h4 className="font-thin text-md ml-2">{show.location}</h4>
-          </div>
-          <div className="grid grid-cols-2">
-            <div className="grid grid-cols-5 gap-x-5 gap-y-5 mt-5">
-              {show.times.map((time, i) => (
-                <Button
-                  key={i}
-                  variant="outlined"
-                  onClick={() => handleTimeSelection(time, show.location)}
-                  sx={{
-                    color: "white",
-                    borderColor: "white",
-                    borderRadius: "10px",
-                    "&:hover": {
-                      backgroundColor: "rgba(255, 255, 255, 0.1)",
-                      borderColor: "white",
-                    },
-                  }}
-                >
-                  {time}
-                </Button>
-              ))}
+      {showtimes.length === 0 ? (
+        <p>No showtime available yet</p>
+      ) : (
+        showtimes.map((show, index) => (
+          <div key={index} className="mt-10">
+            <div className="flex">
+              <PlaceIcon sx={{ color: "red", fontSize: 30 }} />
+              <h4 className="font-thin text-lg ml-2">{show.location}</h4>
+            </div>
+            <div className="grid grid-cols-2">
+              <div className="grid grid-cols-5 gap-x-5 gap-y-5 mt-5">
+                {show.times.map((timeObj, i) => (
+                  <Button
+                    key={i}
+                    variant="outlined"
+                    onClick={() => handleTimeSelection(timeObj.time, show.location)}
+                    className="text-white border-white rounded-lg h-12 hover:bg-white/10 hover:border-white transition-colors duration-300"
+                  >
+                    {`${timeObj.time}`}
+                  </Button>
+                ))}
+              </div>
             </div>
           </div>
-        </div>
-      ))}
+        ))
+      )}
 
       <SeatSelection
         isVisible={showSeatSelection}
@@ -90,9 +137,9 @@ export default function ShowTime({ movieDetails }: { movieDetails: MovieDetails 
         bookingDetails={{
           movieTitle: title,
           time: selectedTime!,
-          date: "2025-01-01", // Example static date; replace with dynamic value
-          format: "2D", // Example format; replace as needed
-          hall: "Hall 1", // Example hall; replace as needed
+          date: "2025-01-01",
+          format: "2D",
+          hall: "Hall 1",
           cinema: selectedLocation!,
         }}
         setSelectedSeats2={setSelectedSeats2}
@@ -105,9 +152,9 @@ export default function ShowTime({ movieDetails }: { movieDetails: MovieDetails 
           movieTitle: title,
           time: selectedTime!,
           posterurl: posterurl,
-          date: "2025-01-01", // Example static date; replace with dynamic value
-          format: "2D", // Example format; replace as needed
-          hall: "Hall 1", // Example hall; replace as needed
+          date: "2025-01-01",
+          format: "2D",
+          hall: "Hall 1",
           cinema: selectedLocation!,
           selectedSeats: selectedSeats,
         }}

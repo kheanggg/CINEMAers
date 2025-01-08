@@ -229,7 +229,7 @@ const ResponsiveAppBar: React.FC = () => {
             }}
           />
           <span className="text-xl flex justify-center items-center">
-            {session.user?.id || 'User'}
+            {session.user?.name || 'User'}
           </span>
         </div>
       )}
