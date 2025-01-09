@@ -7,26 +7,43 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Cinema {
+  cinema_id     Int        @id @default(autoincrement())
+  name          String
+  description   String?
+  openHour      String
+  closeHour     String
+  address1      String
+  address2      String?
+  city          String
+  numberOfHalls Int
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+  showtimes     Showtime[] // Relation to the Showtime model
+}
+
 model Showtime {
   showtime_id Int      @id @default(autoincrement())
   movie_id    Int
+  cinema_id   Int
   show_date   DateTime
   start_time  DateTime
   runtime     Int
   movie       Movie    @relation(fields: [movie_id], references: [movie_id])
+  cinema      Cinema   @relation(fields: [cinema_id], references: [cinema_id])
 }
 
 model Movie {
   movie_id     Int        @id @default(autoincrement())
-  title        String    @db.VarChar(255)
+  title        String     @db.VarChar(255)
   description  String
-  release_date DateTime? @db.Date
+  release_date DateTime?  @db.Date
   duration     Int
-  genre        String?   @db.VarChar(100)
-  rating       String?   @db.VarChar(25)
-  posterurl    String?   @db.VarChar(255)
-  trailerurl   String?   @db.VarChar(255)
-  iscomingsoon Boolean @default(false)  // Make sure this is defined
+  genre        String?    @db.VarChar(100)
+  rating       String?    @db.VarChar(25)
+  posterurl    String?    @db.VarChar(255)
+  trailerurl   String?    @db.VarChar(255)
+  iscomingsoon Boolean    @default(false)
   showtimes    Showtime[]
 }
 
