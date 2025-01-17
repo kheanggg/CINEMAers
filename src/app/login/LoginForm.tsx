@@ -11,7 +11,7 @@ import Link from "next/link";
 const LoginForm: React.FC = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [phoneNumber, setPhoneNumber] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState(""); // This is used only in OTP context
   const [otp, setOtp] = useState("");
   const [error, setError] = useState("");
   const [isPhoneLogin, setIsPhoneLogin] = useState(false);
@@ -54,7 +54,7 @@ const LoginForm: React.FC = () => {
   };
 
   const sendOtp = async () => {
-    const result = await sendOtpToPhone(phoneNumber);
+    const result = await sendOtpToPhone();
     if (result.success) {
       alert("OTP sent to your phone!");
     } else {
@@ -79,6 +79,11 @@ const LoginForm: React.FC = () => {
           setOtp={setOtp}
           sendOtp={sendOtp}
         />
+      )}
+
+      {/* Display error message */}
+      {error && (
+        <div className="text-red-600 mt-2 text-center">{error}</div>
       )}
 
       <div className="flex justify-between mt-3">
@@ -137,14 +142,8 @@ interface Result {
   error?: string;
 }
 
-const sendOtpToPhone = async (phoneNumber: string): Promise<Result> => {
-  return { success: true };
-};
-
-const verifyOtpLogin = async (
-  phoneNumber: string,
-  otp: string
-): Promise<Result> => {
+const sendOtpToPhone = async (): Promise<Result> => {
+  // Example function to simulate sending OTP
   return { success: true };
 };
 

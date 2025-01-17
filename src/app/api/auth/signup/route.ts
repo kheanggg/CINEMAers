@@ -59,8 +59,11 @@ export async function POST(req: NextRequest) {
     });
 
     // Indicate success with a JSON response
-    return NextResponse.json({ success: true, message: "User created successfully" });
-  } catch (error) {
+    return NextResponse.json({
+      success: true,
+      message: "User created successfully",
+    });
+  } catch {
     return NextResponse.json(
       { error: "An unexpected error occurred during signup." },
       { status: 500 }

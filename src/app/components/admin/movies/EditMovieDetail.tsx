@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import Image from "next/image";
 
 interface EditMovieDetailProps {
   isVisible: boolean;
@@ -20,12 +21,16 @@ interface MovieDetails {
   description: string;
 }
 
-export default function EditMovieDetail({ isVisible, onClose, onEdit, movieId }: EditMovieDetailProps) {
+export default function EditMovieDetail({
+  isVisible,
+  onClose,
+  onEdit,
+  movieId,
+}: EditMovieDetailProps) {
   const [movie, setMovie] = useState<MovieDetails | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [editedMovie, setEditedMovie] = useState<MovieDetails | null>(null);
-  
 
   useEffect(() => {
     if (movieId !== null) {
@@ -35,14 +40,20 @@ export default function EditMovieDetail({ isVisible, onClose, onEdit, movieId }:
           const response = await fetch(`/api/movies?id=${movieId}`);
 
           if (!response.ok) {
-            throw new Error(`Failed to fetch movie details: ${response.statusText}`);
+            throw new Error(
+              `Failed to fetch movie details: ${response.statusText}`
+            );
           }
 
           const data = await response.json();
           setMovie(data[0]);
           setEditedMovie(data[0]);
-        } catch (err: any) {
-          setError(err.message || "Error fetching movie data");
+        } catch (err: unknown) {
+          if (err instanceof Error) {
+            setError(err.message);
+          } else {
+            setError("Error fetching movie data");
+          }
         } finally {
           setLoading(false);
         }
@@ -51,7 +62,11 @@ export default function EditMovieDetail({ isVisible, onClose, onEdit, movieId }:
     }
   }, [movieId]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+    >
+  ) => {
     if (editedMovie) {
       setEditedMovie({
         ...editedMovie,
@@ -80,14 +95,16 @@ export default function EditMovieDetail({ isVisible, onClose, onEdit, movieId }:
     const day = String(d.getDate()).padStart(2, "0");
     return `${year}-${month}-${day}`;
   };
-  
 
   if (!isVisible || loading) return null;
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex justify-center items-center">
       <div className="w-[80%] max-w-4xl bg-white rounded-lg shadow-xl p-6">
-        <button className="text-white text-xl absolute top-4 right-4" onClick={onClose}>
+        <button
+          className="text-white text-xl absolute top-4 right-4"
+          onClick={onClose}
+        >
           X
         </button>
         <div className="text-black">
@@ -96,16 +113,21 @@ export default function EditMovieDetail({ isVisible, onClose, onEdit, movieId }:
           ) : movie ? (
             <div className="flex flex-col sm:flex-row sm:space-x-6">
               <div className="w-full sm:w-1/3 h-64 sm:h-auto mb-6 sm:mb-0 relative">
-                <img
+                <Image
                   src={movie.posterurl}
                   alt={movie.title}
                   className="w-full object-cover rounded-lg shadow-md"
+                  width={500} // Specify width for optimization
+                  height={750} // Specify height for optimization
                 />
               </div>
               <div className="w-full sm:w-2/3">
                 <div className="gap-2 grid grid-cols-2">
                   <div>
-                    <label htmlFor="title" className="block text-sm font-medium mb-1">
+                    <label
+                      htmlFor="title"
+                      className="block text-sm font-medium mb-1"
+                    >
                       Title
                     </label>
                     <input
@@ -119,21 +141,31 @@ export default function EditMovieDetail({ isVisible, onClose, onEdit, movieId }:
                   </div>
 
                   <div>
-                    <label htmlFor="release_date" className="block text-sm font-medium mb-1">
+                    <label
+                      htmlFor="release_date"
+                      className="block text-sm font-medium mb-1"
+                    >
                       Release Date
                     </label>
                     <input
                       type="date"
                       id="release_date"
                       name="release_date"
-                      value={editedMovie?.release_date ? formatDate(editedMovie.release_date) : ""}
+                      value={
+                        editedMovie?.release_date
+                          ? formatDate(editedMovie.release_date)
+                          : ""
+                      }
                       onChange={handleChange}
                       className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                   </div>
 
                   <div>
-                    <label htmlFor="rating" className="block text-sm font-medium mb-1">
+                    <label
+                      htmlFor="rating"
+                      className="block text-sm font-medium mb-1"
+                    >
                       Rating
                     </label>
                     <input
@@ -147,7 +179,10 @@ export default function EditMovieDetail({ isVisible, onClose, onEdit, movieId }:
                   </div>
 
                   <div>
-                    <label htmlFor="genre" className="block text-sm font-medium mb-1">
+                    <label
+                      htmlFor="genre"
+                      className="block text-sm font-medium mb-1"
+                    >
                       Genre
                     </label>
                     <input
@@ -161,7 +196,10 @@ export default function EditMovieDetail({ isVisible, onClose, onEdit, movieId }:
                   </div>
 
                   <div>
-                    <label htmlFor="duration" className="block text-sm font-medium mb-1">
+                    <label
+                      htmlFor="duration"
+                      className="block text-sm font-medium mb-1"
+                    >
                       Duration (Minutes)
                     </label>
                     <input
@@ -175,7 +213,10 @@ export default function EditMovieDetail({ isVisible, onClose, onEdit, movieId }:
                   </div>
 
                   <div className="col-span-2">
-                    <label htmlFor="description" className="block text-sm font-medium mb-1">
+                    <label
+                      htmlFor="description"
+                      className="block text-sm font-medium mb-1"
+                    >
                       Movie Description
                     </label>
                     <textarea

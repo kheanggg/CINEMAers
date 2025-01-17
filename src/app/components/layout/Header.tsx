@@ -1,15 +1,16 @@
 "use client";
-import * as React from 'react';
-import { useState } from 'react';
-import AppBar from '@mui/material/AppBar';
-import Toolbar from '@mui/material/Toolbar';
-import IconButton from '@mui/material/IconButton';
-import NotificationsIcon from '@mui/icons-material/Notifications';
-import PersonIcon from '@mui/icons-material/Person';
-import StarIcon from '@mui/icons-material/Star';
+import * as React from "react";
+import { useState, useEffect } from "react";
+import AppBar from "@mui/material/AppBar";
+import Toolbar from "@mui/material/Toolbar";
+import IconButton from "@mui/material/IconButton";
+import NotificationsIcon from "@mui/icons-material/Notifications";
+import PersonIcon from "@mui/icons-material/Person";
+import StarIcon from "@mui/icons-material/Star";
 import Link from "next/link";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
-import axios from 'axios';
+import axios from "axios";
+import Image from "next/image";
 import {
   MenuItem,
   FormControl,
@@ -20,9 +21,9 @@ import {
   Dialog,
   DialogTitle,
   DialogContent,
-  Button
+  Button,
 } from "@mui/material";
-import { useSession } from 'next-auth/react';
+import { useSession } from "next-auth/react";
 
 // Newsletter Subscription Modal Component
 interface NewsletterModalProps {
@@ -31,14 +32,10 @@ interface NewsletterModalProps {
   onSubscribe: (email: string) => Promise<void>;
 }
 
-const NewsletterModal: React.FC<NewsletterModalProps> = ({
-  open,
-  onClose,
-  onSubscribe
-}) => {
-  const [email, setEmail] = useState('');
+const NewsletterModal: React.FC<NewsletterModalProps> = ({ open, onClose }) => {
+  const [email, setEmail] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [errorMessage, setErrorMessage] = useState('');
+  const [errorMessage, setErrorMessage] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -46,25 +43,25 @@ const NewsletterModal: React.FC<NewsletterModalProps> = ({
     // Basic email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
-      setErrorMessage('Please enter a valid email address');
+      setErrorMessage("Please enter a valid email address");
       return;
     }
 
     setIsSubmitting(true);
-    setErrorMessage('');
+    setErrorMessage("");
 
     try {
-      const response = await axios.post('/api/subscribe', { email });
+      const response = await axios.post("/api/subscribe", { email });
 
       if (response.data.success) {
-        setErrorMessage('Successfully subscribed!');
+        setErrorMessage("Successfully subscribed!");
       } else {
-        setErrorMessage('Failed to subscribe');
+        setErrorMessage("Failed to subscribe");
       }
-      setEmail('');
+      setEmail("");
       onClose();
-    } catch (error) {
-      setErrorMessage('Subscription failed. Please try again.');
+    } catch {
+      setErrorMessage("Subscription failed. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
@@ -76,29 +73,33 @@ const NewsletterModal: React.FC<NewsletterModalProps> = ({
       onClose={onClose}
       PaperProps={{
         sx: {
-          borderRadius: '12px',
-          padding: '16px',
-          backgroundColor: 'black',
-          color: 'white',
-          width: '50vh'
-        }
+          borderRadius: "12px",
+          padding: "16px",
+          backgroundColor: "black",
+          color: "white",
+          width: "50vh",
+        },
       }}
     >
-      <DialogTitle sx={{ textAlign: 'center', fontWeight: 600 }}>
+      <DialogTitle sx={{ textAlign: "center", fontWeight: 600 }}>
         Subscribe to Newsletter
       </DialogTitle>
       <DialogContent>
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+        <form
+          onSubmit={handleSubmit}
+          style={{ display: "flex", flexDirection: "column", gap: "16px" }}
+        >
           <input
             type="email"
             id="emailInput"
             name="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className={`w-full px-3 py-2 border ${errorMessage
-                ? 'border-red-500 focus:ring-red-500'
-                : 'border-gray-300 focus:ring-blue-500'
-              } rounded-md focus:outline-none focus:ring-2`}
+            className={`w-full px-3 py-2 border ${
+              errorMessage
+                ? "border-red-500 focus:ring-red-500"
+                : "border-gray-300 focus:ring-blue-500"
+            } rounded-md focus:outline-none focus:ring-2`}
             placeholder="Email Address"
             required
           />
@@ -112,16 +113,16 @@ const NewsletterModal: React.FC<NewsletterModalProps> = ({
             onClick={handleSubmit}
             disabled={isSubmitting}
             sx={{
-              textTransform: 'none',
-              padding: '12px',
-              backgroundColor: '#E61414',
-              '&:hover': {
-                backgroundColor: '#CC1414',
-                opacity: 0.9
-              }
+              textTransform: "none",
+              padding: "12px",
+              backgroundColor: "#E61414",
+              "&:hover": {
+                backgroundColor: "#CC1414",
+                opacity: 0.9,
+              },
             }}
           >
-            {isSubmitting ? 'Subscribing...' : 'Subscribe'}
+            {isSubmitting ? "Subscribing..." : "Subscribe"}
           </Button>
         </form>
       </DialogContent>
@@ -134,9 +135,10 @@ interface Country {
   flag: string;
 }
 
-const ResponsiveAppBar: React.FC = () => {
+const Header: React.FC = () => {
+  const { data: session } = useSession();
 
-  const { data: session} = useSession();
+
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [hasNotification, setHasNotification] = useState(true);
@@ -167,14 +169,14 @@ const ResponsiveAppBar: React.FC = () => {
 
   const handleSubscribe = async (email: string) => {
     // Implement your newsletter subscription logic here
-    console.log('Subscribing with email:', email);
+    console.log("Subscribing with email:", email);
     // Simulating an API call
-    await new Promise(resolve => setTimeout(resolve, 1500));
+    await new Promise((resolve) => setTimeout(resolve, 1500));
     // You would typically call your actual subscription API here
   };
 
   const open = Boolean(anchorEl);
-  const id = open ? 'notification-popover' : undefined;
+  const id = open ? "notification-popover" : undefined;
 
   // Define country flags for languages
   const countries: { [key: string]: Country } = {
@@ -187,53 +189,55 @@ const ResponsiveAppBar: React.FC = () => {
   };
 
   return (
-    <div className="relative w-full">
+    <>
       <AppBar
         position="absolute"
         sx={{
-          backgroundColor: 'transparent',
-          boxShadow: '0',
+          width: "100%", // Ensure it spans the full width initially
+          backgroundColor: "transparent",
+          boxShadow: "0",
+          left: "0", // Align to the left edge of the viewport
+          top: "10px",
         }}
         className="mx-auto xs:w-[360px] sm:w-[390px] md:w-[750px] lg:w-[900px] xl:w-[1125px] top-10 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
       >
         <Toolbar className="px-0 justify-between">
-        <div className="flex gap-3">
-      {/* Conditionally render LOG IN button or Profile image based on session */}
-      {!session ? (
-        <Link href="/login" className="flex gap-3">
-          <IconButton
-            size="large"
-            sx={{
-              backgroundColor: '#414040 !important',
-              color: 'white',
-              '&:hover': {
-                backgroundColor: '#414040',
-              },
-            }}
-          >
-            <PersonIcon sx={{ fill: 'white' }} />
-          </IconButton>
-          <span className="text-xl flex justify-center items-center">LOG IN</span>
-        </Link>
-      ) : (
-        <div className="flex gap-3 items-center">
-          {/* Profile Image */}
-          <img
-            src={'/default_profile.png'}
-            alt="Profile"
-            style={{
-              width: '45px',
-              height: '45px',
-              borderRadius: '50%',
-              objectFit: 'cover',
-            }}
-          />
-          <span className="text-xl flex justify-center items-center">
-            {session.user?.name || 'User'}
-          </span>
-        </div>
-      )}
-    </div>
+          <div className="flex gap-3">
+            {/* Conditionally render LOG IN button or Profile image based on session */}
+            {!session ? (
+              <Link href="/login" className="flex gap-3">
+                <IconButton
+                  size="large"
+                  sx={{
+                    backgroundColor: "#414040 !important",
+                    color: "white",
+                    "&:hover": {
+                      backgroundColor: "#414040",
+                    },
+                  }}
+                >
+                  <PersonIcon sx={{ fill: "white" }} />
+                </IconButton>
+                <span className="text-xl flex justify-center items-center">
+                  LOG IN
+                </span>
+              </Link>
+            ) : (
+              <div className="flex gap-3 items-center">
+                {/* Profile Image */}
+                <Image
+                  src="/default_profile.png"
+                  alt="Profile"
+                  width={45}
+                  height={45}
+                  style={{ borderRadius: "50%", objectFit: "cover" }}
+                />
+                <span className="text-xl flex justify-center items-center">
+                  {session.user?.name || "User"}
+                </span>
+              </div>
+            )}
+          </div>
 
           <div className="flex gap-3 items-center">
             {/* Notification */}
@@ -241,15 +245,15 @@ const ResponsiveAppBar: React.FC = () => {
               <IconButton
                 size="large"
                 sx={{
-                  backgroundColor: '#414040 !important',
-                  color: 'white',
-                  '&:hover': {
-                    backgroundColor: '#414040',
+                  backgroundColor: "#414040 !important",
+                  color: "white",
+                  "&:hover": {
+                    backgroundColor: "#414040",
                   },
                 }}
                 onClick={handleNotificationClick}
               >
-                <NotificationsIcon sx={{ fill: 'white' }} />
+                <NotificationsIcon sx={{ fill: "white" }} />
               </IconButton>
               {hasNotification && (
                 <div
@@ -271,26 +275,44 @@ const ResponsiveAppBar: React.FC = () => {
                 anchorEl={anchorEl}
                 onClose={handleNotificationClose}
                 anchorOrigin={{
-                  vertical: 'bottom',
-                  horizontal: 'left',
+                  vertical: "bottom",
+                  horizontal: "left",
                 }}
               >
-                <div style={{ padding: '16px', maxWidth: '250px' }}>
+                <div style={{ padding: "16px", maxWidth: "250px" }}>
                   <Typography variant="subtitle1" gutterBottom>
                     Notifications
                   </Typography>
                   {/* Example notifications */}
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  <div
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: "8px",
+                    }}
+                  >
                     <div
-                      style={{ borderBottom: '1px solid #ddd', padding: '8px 0', cursor: 'pointer' }}
+                      style={{
+                        borderBottom: "1px solid #ddd",
+                        padding: "8px 0",
+                        cursor: "pointer",
+                      }}
                     >
-                      <Typography variant="body2">New feature: Khmer Language is now available!</Typography>
+                      <Typography variant="body2">
+                        New feature: Khmer Language is now available!
+                      </Typography>
                     </div>
                     <div
-                      style={{ padding: '8px 0', cursor: 'pointer' }}
-                      onClick={() => handleNotificationAction("Subscribe to our newsletter for updates.")}
+                      style={{ padding: "8px 0", cursor: "pointer" }}
+                      onClick={() =>
+                        handleNotificationAction(
+                          "Subscribe to our newsletter for updates."
+                        )
+                      }
                     >
-                      <Typography variant="body2">Subscribe to our newsletter for updates.</Typography>
+                      <Typography variant="body2">
+                        Subscribe to our newsletter for updates.
+                      </Typography>
                     </div>
                   </div>
                 </div>
@@ -301,25 +323,22 @@ const ResponsiveAppBar: React.FC = () => {
             <IconButton
               size="large"
               sx={{
-                backgroundColor: '#414040 !important',
-                color: 'white',
-                '&:hover': {
-                  backgroundColor: '#414040',
+                backgroundColor: "#414040 !important",
+                color: "white",
+                "&:hover": {
+                  backgroundColor: "#414040",
                 },
               }}
             >
-              <StarIcon sx={{ fill: 'white' }} />
+              <StarIcon sx={{ fill: "white" }} />
             </IconButton>
 
-            <img
+            <Image
               src={countries[language].flag}
               alt={`${language} Flag`}
-              style={{
-                width: "45px",
-                height: "45px",
-                borderRadius: "50%",
-                objectFit: "cover",
-              }}
+              width={45}
+              height={45}
+              style={{ borderRadius: "50%", objectFit: "cover" }}
             />
 
             <FormControl sx={{ width: "70px" }}>
@@ -330,7 +349,10 @@ const ResponsiveAppBar: React.FC = () => {
                 label="Language"
                 onChange={handleLanguageChange}
                 IconComponent={(props) => (
-                  <ArrowDropDownIcon {...props} sx={{ color: "white !important" }} />
+                  <ArrowDropDownIcon
+                    {...props}
+                    sx={{ color: "white !important" }}
+                  />
                 )}
                 sx={{
                   height: "50px",
@@ -354,8 +376,8 @@ const ResponsiveAppBar: React.FC = () => {
         onClose={() => setIsNewsletterModalOpen(false)}
         onSubscribe={handleSubscribe}
       />
-    </div>
+    </>
   );
 };
 
-export default ResponsiveAppBar;
+export default Header;

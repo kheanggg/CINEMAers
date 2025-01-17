@@ -22,7 +22,7 @@ export default function Forget() {
       <div style={emailPasswordReset}>
         <h1 className="text-3xl">AH, What a bummer.</h1>
         <p className="mt-5 text-lg">
-          No worries, we'll send you an instruction on how to reset the
+          No worries, we&apos;ll send you an instruction on how to reset the
           password.
         </p>
         <p className="mt-5 text-lg">Email</p>

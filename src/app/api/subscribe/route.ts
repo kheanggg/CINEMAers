@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 
 const MAILCHIMP_API_KEY = process.env.MAILCHIMP_API_KEY;
 const MAILCHIMP_LIST_ID = process.env.MAILCHIMP_LIST_ID;
@@ -40,11 +40,15 @@ export async function POST(req: Request) {
     } else {
       throw new Error("Failed to subscribe");
     }
-  } catch (error: any) {
-    console.error("Error subscribing to Mailchimp:", error);
-
-    if (error.response) {
-      console.error("Mailchimp API response:", error.response.data);
+  } catch (error: unknown) {
+    // Narrow down the error type
+    if (axios.isAxiosError(error)) {
+      const axiosError = error as AxiosError; // Cast error to AxiosError
+      console.error("Mailchimp API response:", axiosError.response?.data);
+    } else if (error instanceof Error) {
+      console.error("Error subscribing to Mailchimp:", error.message);
+    } else {
+      console.error("An unknown error occurred");
     }
 
     return NextResponse.json(

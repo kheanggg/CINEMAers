@@ -1,8 +1,9 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
-  
+  images: {
+    domains: ['flagcdn.com', 'tickets.legend.com.kh'], // Add the domain here
+  },
 };
 
 export default nextConfig;

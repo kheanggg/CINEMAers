@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/app/lib/prisma";
+import { Prisma } from "@prisma/client"; // Import Prisma types
 
 export async function GET(request: NextRequest) {
   try {
@@ -31,7 +32,7 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    const where: any = {};
+    const where: Prisma.ShowtimeWhereInput = {};
 
     if (showDate) {
       showDate.setHours(0, 0, 0, 0);
@@ -48,8 +49,8 @@ export async function GET(request: NextRequest) {
       where.movie_id = Number(movieId);
     }
 
-    // Determine whether to apply distinct
-    const distinct = showDate ? ["movie_id"] : undefined;
+    // Use Prisma.ShowtimeScalarFieldEnum for distinct
+    const distinct: Prisma.ShowtimeScalarFieldEnum[] = showDate ? ["movie_id"] : [];
 
     // Fetch showtimes
     const [showtimes, total] = await Promise.all([

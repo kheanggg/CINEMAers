@@ -1,10 +1,33 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, ChangeEvent, FormEvent } from "react";
 import { useRouter } from "next/navigation";
 
+interface FormData {
+  name: string;
+  username: string;
+  dob: string;
+  email: string;
+  phone_number: string;
+  password: string;
+}
+
+interface FormErrors {
+  name?: string;
+  username?: string;
+  dob?: string;
+  email?: string;
+  phone_number?: string;
+  password?: string;
+}
+
+interface ApiError {
+  field: string;
+  message: string;
+}
+
 export default function RegisterBox() {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<FormData>({
     name: "",
     username: "",
     dob: "",
@@ -12,9 +35,9 @@ export default function RegisterBox() {
     phone_number: "",
     password: "",
   });
-  const [error, setError] = useState("");
-  const [successMessage, setSuccessMessage] = useState("");
-  const [formErrors, setFormErrors] = useState<any>({});
+  const [error, setError] = useState<string>("");
+  const [successMessage, setSuccessMessage] = useState<string>("");
+  const [formErrors, setFormErrors] = useState<FormErrors>({});
 
   const registerContainerStyle = {
     opacity: 0.8,
@@ -30,7 +53,7 @@ export default function RegisterBox() {
     color: "red",
   };
 
-  const handleInputChange = (e: any) => {
+  const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({
       ...prevData,
@@ -38,31 +61,28 @@ export default function RegisterBox() {
     }));
   };
 
-  const validateForm = () => {
-    const errors: any = {};
+  const validateForm = (): boolean => {
+    const errors: FormErrors = {};
     if (!formData.name) errors.name = "Name is required";
     if (!formData.username) errors.username = "Username is required";
     if (!formData.dob) errors.dob = "Date of Birth is required";
     if (!formData.email) errors.email = "Email is required";
-    if (!formData.phone_number)
-      errors.phone_number = "Phone Number is required";
+    if (!formData.phone_number) errors.phone_number = "Phone Number is required";
     if (!formData.password) errors.password = "Password is required";
 
     setFormErrors(errors);
-    return Object.keys(errors).length === 0; // If no errors, return true
+    return Object.keys(errors).length === 0;
   };
-  
-  const router = useRouter(); // Initialize the router
 
-  const handleSubmit = async (e: any) => {
+  const router = useRouter();
+
+  const handleSubmit = async (e: FormEvent<HTMLButtonElement>) => {
     e.preventDefault();
 
     if (!validateForm()) {
-      setSuccessMessage(""); // Clear any previous success message
-      return; // Stop if validation fails
+      setSuccessMessage("");
+      return;
     }
-
-    
 
     try {
       const response = await fetch("/api/auth/signup", {
@@ -79,8 +99,8 @@ export default function RegisterBox() {
         setSuccessMessage(
           result.message || "Registration successful! Redirecting..."
         );
-        setError(""); // Clear any previous error messages
-        setFormErrors({}); // Clear validation errors
+        setError("");
+        setFormErrors({});
         setFormData({
           name: "",
           username: "",
@@ -88,29 +108,30 @@ export default function RegisterBox() {
           email: "",
           phone_number: "",
           password: "",
-        }); // Clear form fields
+        });
 
-        // Add redirection
         setTimeout(() => {
-          router.push("/login"); // Redirect to the login page after 2 seconds
+          router.push("/login");
         }, 2000);
       } else {
-        // Handle server errors
         if (result.errors) {
-          const apiErrors = result.errors.reduce((acc: any, err: any) => {
-            acc[err.field] = err.message;
-            return acc;
-          }, {});
+          const apiErrors = (result.errors as ApiError[]).reduce<FormErrors>(
+            (acc, err) => {
+              acc[err.field as keyof FormErrors] = err.message;
+              return acc;
+            },
+            {}
+          );
           setFormErrors(apiErrors);
         } else {
           setError(result.error || "Registration failed. Please try again.");
         }
-        setSuccessMessage(""); // Clear success message
+        setSuccessMessage("");
       }
     } catch (err) {
       console.error("Registration error:", err);
       setError("Something went wrong. Please try again later.");
-      setSuccessMessage(""); // Clear success message
+      setSuccessMessage("");
     }
   };
 
@@ -127,7 +148,7 @@ export default function RegisterBox() {
     >
       <div className="w-full max-w-lg p-8 mx-4" style={registerContainerStyle}>
         <h1 className="text-2xl font-bold mb-3 text-white">
-          Let's get you READY!
+          Let&apos;s get you READY!
         </h1>
         <p className="text-gray-300">
           Fill in the information below to get started.

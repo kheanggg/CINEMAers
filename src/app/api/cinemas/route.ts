@@ -9,11 +9,14 @@ export async function GET(request: NextRequest) {
     if (cinema_id) {
       // Fetch a specific cinema by ID
       const cinema = await prisma.cinema.findUnique({
-        where: { id: parseInt(cinema_id, 10) }, // Ensure `cinema_id` is a number
+        where: { cinema_id: parseInt(cinema_id, 10) }, // Use cinema_id instead of id
       });
 
       if (!cinema) {
-        return NextResponse.json({ error: "Cinema not found" }, { status: 404 });
+        return NextResponse.json(
+          { error: "Cinema not found" },
+          { status: 404 }
+        );
       }
 
       return NextResponse.json({ data: cinema });
@@ -24,6 +27,9 @@ export async function GET(request: NextRequest) {
     }
   } catch (error) {
     console.error("Error fetching cinemas:", error);
-    return NextResponse.json({ error: "Failed to fetch cinemas" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to fetch cinemas" },
+      { status: 500 }
+    );
   }
 }

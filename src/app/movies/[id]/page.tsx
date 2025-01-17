@@ -35,7 +35,7 @@ const MovieDetails = () => {
         const movieData: Movie[] = await response.json(); // Expecting an array of movies
         console.log("Movie data:", movieData); // Log movie data
         setMovie(movieData[0]); // Set movie data, taking the first element of the array
-      } catch (err) {
+      } catch {
         setError('Failed to fetch movie details');
       } finally {
         setLoading(false);

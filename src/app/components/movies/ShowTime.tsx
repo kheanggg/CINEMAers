@@ -15,12 +15,14 @@ interface MovieDetails {
   movie_id: number;
   title: string;
   posterurl: string;
-  duration: number;
-  genre: string;
 }
 
-export default function ShowTime({ movieDetails }: { movieDetails: MovieDetails }) {
-  const { movie_id, title, posterurl, duration, genre } = movieDetails;
+export default function ShowTime({
+  movieDetails,
+}: {
+  movieDetails: MovieDetails;
+}) {
+  const { movie_id, title, posterurl } = movieDetails;
 
   const [showtimes, setShowtimes] = useState<Showtime[]>([]);
   const [cinemas, setCinemas] = useState<{ [key: number]: string }>({});
@@ -32,22 +34,33 @@ export default function ShowTime({ movieDetails }: { movieDetails: MovieDetails 
   const [showSuccessfulBooking, setShowSuccessfulBooking] = useState(false);
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
   const [selectedLocation, setSelectedLocation] = useState<string | null>(null);
-  const [selectedSeats, setSelectedSeats2] = useState<{ [key: string]: boolean }>({});
+  const [selectedSeats, setSelectedSeats2] = useState<{
+    [key: string]: boolean;
+  }>({});
 
   useEffect(() => {
     const fetchCinemas = async () => {
       try {
-        const response = await axios.get(`http://localhost:3000/api/cinemas`);
+        const response = await axios.get<{
+          data: { cinema_id: number; name: string }[];
+        }>(`http://localhost:3000/api/cinemas`);
         const { data } = response.data;
 
-        const cinemaMap = data.reduce((acc: { [key: number]: string }, cinema: any) => {
-          acc[cinema.cinema_id] = cinema.name;
-          return acc;
-        }, {});
+        const cinemaMap = data.reduce(
+          (acc: { [key: number]: string }, cinema) => {
+            acc[cinema.cinema_id] = cinema.name;
+            return acc;
+          },
+          {}
+        );
 
         setCinemas(cinemaMap);
-      } catch (err: any) {
-        console.error("Failed to fetch cinemas:", err.message);
+      } catch (err: unknown) {
+        if (err instanceof Error) {
+          console.error("Failed to fetch cinemas:", err.message);
+        } else {
+          console.error("An unknown error occurred.");
+        }
       }
     };
 
@@ -58,25 +71,34 @@ export default function ShowTime({ movieDetails }: { movieDetails: MovieDetails 
     const fetchShowtimes = async () => {
       try {
         setLoading(true);
-        const response = await axios.get(`http://localhost:3000/api/showtime`, {
+        const response = await axios.get<{
+          data: { cinema_id: number; show_date: string; start_time: string }[];
+        }>(`http://localhost:3000/api/showtime`, {
           params: { movie_id },
         });
 
         const { data } = response.data;
 
-        const parsedShowtimes = data.map((item: any) => ({
+        const parsedShowtimes = data.map((item) => ({
           location: cinemas[item.cinema_id] || `Cinema ID: ${item.cinema_id}`,
           times: [
             {
               date: new Date(item.show_date).toLocaleDateString(),
-              time: new Date(item.start_time).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+              time: new Date(item.start_time).toLocaleTimeString([], {
+                hour: "2-digit",
+                minute: "2-digit",
+              }),
             },
           ],
         }));
 
         setShowtimes(parsedShowtimes);
-      } catch (err: any) {
-        setError(err.message || "Failed to fetch showtimes.");
+      } catch (err: unknown) {
+        if (err instanceof Error) {
+          setError(err.message || "Failed to fetch showtimes.");
+        } else {
+          setError("An unknown error occurred.");
+        }
       } finally {
         setLoading(false);
       }
@@ -91,14 +113,13 @@ export default function ShowTime({ movieDetails }: { movieDetails: MovieDetails 
     setShowSeatSelection(true);
   };
 
-  if (loading) return;
+  if (loading) return null;
 
   if (!showtimes || showtimes.length === 0) {
-    return;
+    return null;
   }
 
   if (error) return <p>Error: {error}</p>;
-
 
   return (
     <div className="my-8">
@@ -118,7 +139,9 @@ export default function ShowTime({ movieDetails }: { movieDetails: MovieDetails 
                   <Button
                     key={i}
                     variant="outlined"
-                    onClick={() => handleTimeSelection(timeObj.time, show.location)}
+                    onClick={() =>
+                      handleTimeSelection(timeObj.time, show.location)
+                    }
                     className="text-white border-white rounded-lg h-12 hover:bg-white/10 hover:border-white transition-colors duration-300"
                   >
                     {`${timeObj.time}`}

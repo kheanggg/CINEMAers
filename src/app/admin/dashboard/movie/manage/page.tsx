@@ -4,6 +4,7 @@ import React, { useState, useEffect, Fragment } from "react";
 import EditMovieDetail from "@/app/components/admin/movies/EditMovieDetail";
 import DeleteMovie from "@/app/components/admin/movies/DeleteMovie";
 import AlertPage from "@/app/components/AlertPage";
+import Image from "next/image";
 
 interface MovieDetails {
   id: number;
@@ -23,17 +24,19 @@ export default function ManageMovies() {
   const [showModal1, setShowModal1] = useState(false);
   const [showModal2, setShowModal2] = useState(false);
   const [selectedMovieId, setSelectedMovieId] = useState<number | null>(null);
-  const [operationStatus, setOperationStatus] = useState<'success' | 'error' | null>(null);
+  const [operationStatus, setOperationStatus] = useState<
+    "success" | "error" | null
+  >(null);
 
   const handleSuccess = () => {
-    setOperationStatus('success');
+    setOperationStatus("success");
     setTimeout(() => {
       setOperationStatus(null); // Reset status after a brief delay
     }, 3000); // 3 seconds delay before resetting
   };
 
   const handleError = () => {
-    setOperationStatus('error');
+    setOperationStatus("error");
     setTimeout(() => {
       setOperationStatus(null); // Reset status after a brief delay
     }, 3000); // 3 seconds delay before resetting
@@ -44,9 +47,9 @@ export default function ManageMovies() {
     const fetchMovies = async () => {
       try {
         const response = await fetch("/api/movies");
-        const data = await response.json();
-        const apiMovies = data.map((movie: any) => ({
-          id: movie.movie_id,
+        const data: MovieDetails[] = await response.json();
+        const apiMovies = data.map((movie) => ({
+          id: movie.id, // Ensure this matches your API field names
           title: movie.title,
           posterurl: movie.posterurl,
           duration: movie.duration,
@@ -70,8 +73,8 @@ export default function ManageMovies() {
     const query = event.target.value;
     setSearchQuery(query);
 
-    const filtered = movies.filter((movie) =>
-      movie.title.toLowerCase().includes(query.toLowerCase()) // Case-insensitive search
+    const filtered = movies.filter(
+      (movie) => movie.title.toLowerCase().includes(query.toLowerCase()) // Case-insensitive search
     );
     setFilteredMovies(filtered);
   };
@@ -84,7 +87,9 @@ export default function ManageMovies() {
       });
 
       if (response.ok) {
-        setMovies((prevMovies) => prevMovies.filter((movie) => movie.id !== id));
+        setMovies((prevMovies) =>
+          prevMovies.filter((movie) => movie.id !== id)
+        );
         setShowModal2(false); // Close the modal after successful delete
         handleSuccess(); // Show success message
       } else {
@@ -125,11 +130,11 @@ export default function ManageMovies() {
   return (
     <Fragment>
       <div className="text-black h-screen bg-gray-100">
-        {operationStatus === 'success' && (
+        {operationStatus === "success" && (
           <AlertPage type="success" message="Operation was successful!" />
         )}
 
-        {operationStatus === 'error' && (
+        {operationStatus === "error" && (
           <AlertPage type="error" message="Something went wrong!" />
         )}
         <div className="p-6">
@@ -153,17 +158,20 @@ export default function ManageMovies() {
                   className="flex items-center border p-4 rounded-lg shadow-md"
                 >
                   {/* Poster Image on the Left */}
-                  <img
+                  <Image
                     src={movie.posterurl}
                     alt={movie.title}
                     className="w-32 h-full object-cover mr-6 rounded-lg"
+                    width={128} // Set the width based on your layout
+                    height={192} // Set the height based on your layout
                   />
 
                   {/* Movie Info on the Right */}
                   <div className="flex-1">
                     <h3 className="text-xl font-semibold">{movie.title}</h3>
                     <p className="text-gray-600">
-                      Duration: {Math.floor(movie.duration / 60)} hours {movie.duration % 60} minutes
+                      Duration: {Math.floor(movie.duration / 60)} hours{" "}
+                      {movie.duration % 60} minutes
                     </p>
                     <p className="text-gray-600">Movies Rate: {movie.rating}</p>
                     <p className="text-gray-600">
@@ -178,7 +186,7 @@ export default function ManageMovies() {
                     <button
                       className="bg-blue-500 text-white px-4 py-2 w-[75px] rounded-md hover:bg-blue-600 mb-2"
                       onClick={() => {
-                        setSelectedMovieId(movie.id)
+                        setSelectedMovieId(movie.id);
                         setShowModal1(true);
                       }}
                     >
@@ -188,7 +196,7 @@ export default function ManageMovies() {
                       className="bg-red-500 text-white px-4 py-2 w-[75px] rounded-md hover:bg-red-600"
                       onClick={() => {
                         setShowModal2(true);
-                        setSelectedMovieId(movie.id)
+                        setSelectedMovieId(movie.id);
                       }}
                     >
                       Delete
@@ -200,8 +208,17 @@ export default function ManageMovies() {
           </div>
         </div>
       </div>
-      <EditMovieDetail isVisible={showModal1} onClose={() => setShowModal1(false)} movieId={selectedMovieId} onEdit={(movie: MovieDetails) => handleEdit(selectedMovieId, movie)}/>
-      <DeleteMovie isVisible={showModal2} onClose={() => setShowModal2(false)} onDelete={() => handleDelete(selectedMovieId!)} />
+      <EditMovieDetail
+        isVisible={showModal1}
+        onClose={() => setShowModal1(false)}
+        movieId={selectedMovieId}
+        onEdit={(movie: MovieDetails) => handleEdit(selectedMovieId, movie)}
+      />
+      <DeleteMovie
+        isVisible={showModal2}
+        onClose={() => setShowModal2(false)}
+        onDelete={() => handleDelete(selectedMovieId!)}
+      />
     </Fragment>
   );
 }
