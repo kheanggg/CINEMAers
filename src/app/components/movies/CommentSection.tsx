@@ -1,5 +1,7 @@
-import React, { useState } from "react";
-import { MessageCircle, ThumbsUp, ThumbsDown, Trash2 } from "lucide-react";
+'use client';
+
+import React, { useEffect, useState } from 'react';
+import { MessageCircle, ThumbsUp, ThumbsDown } from 'lucide-react';
 
 interface Comment {
   id: number;
@@ -11,34 +13,18 @@ interface Comment {
 }
 
 const CommentSection: React.FC = () => {
-  const [comments, setComments] = useState<Comment[]>([
-    {
-      id: 1,
-      author: "John Doe",
-      content: "This is a great post!",
-      timestamp: "2 hours ago",
-      likes: 5,
-      dislikes: 1,
-    },
-    {
-      id: 2,
-      author: "Jane Smith",
-      content: "Really interesting perspective!",
-      timestamp: "1 hour ago",
-      likes: 3,
-      dislikes: 0,
-    },
-    {
-      id: 3,
-      author: "Mike Johnson",
-      content: "I completely agree with this.",
-      timestamp: "30 minutes ago",
-      likes: 2,
-      dislikes: 1,
-    },
-  ]);
+  const [comments, setComments] = useState<Comment[]>([]);
+  const [newComment, setNewComment] = useState<string>('');
 
-  const [newComment, setNewComment] = useState<string>("");
+  useEffect(() => {
+    const fetchComments = async () => {
+      const response = await fetch('/api/comments');
+      const data = await response.json();
+      setComments(data);
+    };
+
+    fetchComments();
+  }, []);
 
   const handleSubmitComment = (e: React.FormEvent) => {
     e.preventDefault();
@@ -46,15 +32,15 @@ const CommentSection: React.FC = () => {
 
     const comment: Comment = {
       id: comments.length + 1,
-      author: "Current User",
+      author: 'Current User',
       content: newComment,
-      timestamp: "Just now",
+      timestamp: 'Just now',
       likes: 0,
       dislikes: 0,
     };
 
     setComments([...comments, comment]);
-    setNewComment("");
+    setNewComment('');
   };
 
   const handleLike = (id: number) => {
@@ -73,10 +59,6 @@ const CommentSection: React.FC = () => {
           : comment
       )
     );
-  };
-
-  const handleDelete = (id: number) => {
-    setComments(comments.filter((comment) => comment.id !== id));
   };
 
   return (
@@ -123,29 +105,28 @@ const CommentSection: React.FC = () => {
 
       {/* Fixed Comment Input Section */}
       <div className="border-t border-gray-800 p-4">
-  <form 
-    onSubmit={handleSubmitComment} 
-    className="flex items-center gap-2"
-  >
-    <textarea
-      className="w-2/3 p-2 rounded-lg bg-gray-900 border border-gray-800 
+        <form
+          onSubmit={handleSubmitComment}
+          className="flex items-center gap-2"
+        >
+          <textarea
+            className="w-2/3 p-2 rounded-lg bg-gray-900 border border-gray-800 
                  focus:ring-2 focus:ring-blue-500 focus:border-transparent
                  placeholder-gray-500 resize-none"
-      rows={1}
-      placeholder="Write a comment..."
-      value={newComment}
-      onChange={(e) => setNewComment(e.target.value)}
-    />
-    <button
-      type="submit"
-      className="px-4 py-2 bg-red-600 text-white rounded-lg 
+            rows={1}
+            placeholder="Write a comment..."
+            value={newComment}
+            onChange={(e) => setNewComment(e.target.value)}
+          />
+          <button
+            type="submit"
+            className="px-4 py-2 bg-red-600 text-white rounded-lg 
                  hover:bg-red-700 transition-colors"
-    >
-      Post Comment
-    </button>
-  </form>
-</div>
-
+          >
+            Post Comment
+          </button>
+        </form>
+      </div>
     </div>
   );
 };
