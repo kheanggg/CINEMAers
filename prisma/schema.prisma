@@ -45,6 +45,7 @@ model Movie {
   trailerurl   String?    @db.VarChar(255)
   iscomingsoon Boolean    @default(false)
   showtimes    Showtime[]
+  favorites      Favorite[]
 }
 
 model auth_providers {
@@ -67,6 +68,7 @@ model users {
   created_at     DateTime?        @default(now()) @db.Timestamp(6)
   updated_at     DateTime?        @default(now()) @db.Timestamp(6)
   auth_providers auth_providers[]
+  favorites      Favorite[]       // Add this line for the relation to favorites
 }
 
 model admin {
@@ -75,4 +77,16 @@ model admin {
   password  String   @db.VarChar(255)
   role      String   @default("admin") @db.VarChar(255)
   createdAt DateTime @default(now()) @db.Timestamptz(6)
+}
+
+model Favorite {
+  id        Int      @id @default(autoincrement())
+  userId    Int      // Foreign key for the user
+  movieId   Int      // Foreign key for the movie
+  createdAt DateTime @default(now()) // Timestamp for when the favorite was added
+
+  user      users   @relation(fields: [userId], references: [id], onDelete: Cascade) // Relation to the users table
+  movie     Movie   @relation(fields: [movieId], references: [movie_id], onDelete: Cascade) // Relation to the movie table
+
+  @@unique([userId, movieId]) // Prevents duplicate favorite entries for the same user and movie
 }

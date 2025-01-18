@@ -1,11 +1,14 @@
 "use client";
 import React from "react";
 import TrailerPlayer from "./TrailerPlayer";
+import { useState, useEffect } from "react";
 import MovieDescription from "./MovieDescription";
 import MovieTitle from "./MovieTitle";
 import ShowTime from "./ShowTime";
 import CommentSection from "./CommentSection";
 import Image from "next/image";
+import FavoriteButton from "./FavoriteButton";
+import { useSession } from "next-auth/react";
 
 interface Movie {
   movie_id: number;
@@ -24,6 +27,7 @@ interface MovieDetailProps {
 
 export const MovieDetail: React.FC<MovieDetailProps> = ({ movie }) => {
   const {
+    movie_id,
     title,
     posterurl,
     duration,
@@ -33,11 +37,12 @@ export const MovieDetail: React.FC<MovieDetailProps> = ({ movie }) => {
     rating,
     trailerurl,
   } = movie;
+  const { data: session } = useSession();
   return (
     <div className="items-center justify-center mx-auto my-12 xs:w-[360px] sm:w-[390px] md:w-[750px] lg:w-[900px] xl:w-[1125px]">
       <div className="flex items-center justify-center">
         <div className="grid lg:grid-cols-[20%_35%_45%] xl:grid-cols-[20%_35%_45%] md:grid-cols-[35%_65%] gap-0 w-full">
-          <div className="xs:hidden sm:block">
+          <div className="xs:hidden sm:block relative">
             <div className="h-full object-cover rounded">
               <div className="h-full object-cover rounded">
                 <Image
@@ -47,6 +52,11 @@ export const MovieDetail: React.FC<MovieDetailProps> = ({ movie }) => {
                   layout="responsive" // Or choose another layout that fits your design
                   width={500} // You can adjust this based on your design
                   height={750} // Adjust based on the aspect ratio of the image
+                />
+
+                <FavoriteButton
+                  movieId={movie_id}
+                  userId={session?.user?.id ?? ""}
                 />
               </div>
             </div>
@@ -89,6 +99,7 @@ export const MovieDetail: React.FC<MovieDetailProps> = ({ movie }) => {
               <span className="text-Gray mx-1">Movie Rate:</span>
               <span>{rating}</span>
             </div>
+
             <div className="flex items-center">
               <div className="w-7">
                 <svg

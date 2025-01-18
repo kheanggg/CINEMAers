@@ -320,6 +320,7 @@ const Header: React.FC = () => {
             </div>
 
             {/* Favorite */}
+            <Link href={`/favorite`}>
             <IconButton
               size="large"
               sx={{
@@ -332,6 +333,7 @@ const Header: React.FC = () => {
             >
               <StarIcon sx={{ fill: "white" }} />
             </IconButton>
+            </Link>
 
             <Image
               src={countries[language].flag}
