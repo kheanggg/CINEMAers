@@ -18,7 +18,7 @@ const formatWithLeadingZero = (num: number): string => {
   return num < 10 ? `0${num}` : `${num}`;
 };
 
-export default function Showtime({ selectedDate, setSelectedDate }: ShowtimeProps) {
+export default function Showtime({ setSelectedDate }: ShowtimeProps) {
   const [selectedIndex, setSelectedIndex] = useState<number>(0);
 
   const dates = useMemo(() => {
@@ -83,18 +83,6 @@ export default function Showtime({ selectedDate, setSelectedDate }: ShowtimeProp
             </span>
           </div>
         ))}
-      </div>
-
-      <div className="mt-6 text-center text-white">
-        <h3 className="text-lg font-bold">Selected Date</h3>
-        <p className="text-xl">
-          {dates[selectedIndex].dayName}, {dates[selectedIndex].monthName}{" "}
-          {dates[selectedIndex].day}, {dates[selectedIndex].fullDate.getFullYear()}
-        </p>
-        {/* Display selectedDate */}
-        <p className="text-lg">
-          Currently selected: {selectedDate.toDateString()}
-        </p>
       </div>
     </>
   );

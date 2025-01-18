@@ -1,6 +1,10 @@
 import SocialMediaIcons from './SocialMediaIcons';
+import EmailIcon from '@mui/icons-material/Email';
 
 export default function Footer() {
+    const handleSubmit= () => {
+        window.location.href = 'mailto:acinemaers@gmail.com?subject=Feedback&body=';
+    };
 
     return (
         <div className="bg-[#151414] mt-7">
@@ -19,7 +23,11 @@ export default function Footer() {
                     <div className="flex flex-col lg:items-end xs:text-left">
                         <div className="lg:text-left">
                         <h2 className="font-light xs:text-[15px] sm:text-[15px] md:text-xl sm:text-2xl">FOLLOW US ON SOCIAL</h2>
-                            <SocialMediaIcons />
+                        <SocialMediaIcons />
+                        <div onClick={handleSubmit}>
+                            <h2 className="font-light xs:text-[15px] sm:text-[15px] md:text-xl sm:text-2xl">GIVE US A FEEDBACK!</h2>
+                            <EmailIcon sx={{ fontSize: 34 }} />
+                        </div>
                         </div>
                     </div>
                 </div>

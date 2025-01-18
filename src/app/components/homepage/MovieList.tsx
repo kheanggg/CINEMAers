@@ -28,10 +28,12 @@ interface ShowtimeResponse {
   data: ShowtimeData[];
 }
 
-const MovieCard = ({ movie }: { movie: Movie }) => {
+const MovieCard = ({ movie, selectedDate }: { movie: Movie; selectedDate: Date }) => {
+  const formattedDate = selectedDate.toISOString().split("T")[0]; // Format date to YYYY-MM-DD
+
   return (
     <Link
-      href={`/movies/${movie.movie_id}`}
+      href={`/movies/${movie.movie_id}/${formattedDate}`}
       className="flex flex-col gap-4 h-full group"
     >
       <div className="relative flex-1 w-full overflow-hidden rounded-xl">
@@ -79,7 +81,7 @@ const MovieList = ({ selectedDate, isComingSoon }: MovieListProps) => {
           response = await fetch(`/api/movies?iscomingsoon=true`);
         } else {
           response = await fetch(
-            `/api/showtime?show_date=${selectedDate.toISOString()}`
+            `/api/showtime?selected_date=${selectedDate.toISOString().split('T')[0]}`
           );
         }
 
@@ -99,7 +101,6 @@ const MovieList = ({ selectedDate, isComingSoon }: MovieListProps) => {
             cinemas: showtime.cinemas || [],
           }));
           setMovies(movieData);
-          console.log(movieData);
         } else if (Array.isArray(data)) {
           // Handle direct movie response
           const movieData = (data as Movie[]).map((movie) => ({
@@ -113,7 +114,8 @@ const MovieList = ({ selectedDate, isComingSoon }: MovieListProps) => {
           setError("No movies available");
         }
       } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
+        const errorMessage =
+          error instanceof Error ? error.message : "An unknown error occurred";
         setError(errorMessage);
         console.error("Error fetching data:", error);
       } finally {
@@ -134,7 +136,13 @@ const MovieList = ({ selectedDate, isComingSoon }: MovieListProps) => {
         ) : error ? (
           <div className="col-span-full text-center text-red-500">{error}</div>
         ) : (
-          movies.map((movie) => <MovieCard key={movie.movie_id} movie={movie} />)
+          movies.map((movie) => (
+            <MovieCard
+              key={movie.movie_id}
+              movie={movie}
+              selectedDate={selectedDate} // Pass selectedDate here
+            />
+          ))
         )}
       </div>
     </div>

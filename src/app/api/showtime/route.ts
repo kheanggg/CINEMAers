@@ -7,7 +7,8 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
 
     const movieId = searchParams.get("movie_id");
-    const showDateParam = searchParams.get("show_date");
+    const startTimeParam = searchParams.get("start_time");
+    const selectedDateParam = searchParams.get("selected_date");
     const page = parseInt(searchParams.get("page") || "1", 10);
     const limit = parseInt(searchParams.get("limit") || "10", 10);
 
@@ -20,13 +21,25 @@ export async function GET(request: NextRequest) {
 
     const skip = (page - 1) * limit;
 
-    // Parse show_date if provided
-    let showDate = null;
-    if (showDateParam) {
-      showDate = new Date(showDateParam);
-      if (isNaN(showDate.getTime())) {
+    // Parse start_time if provided
+    let startTime = null;
+    if (startTimeParam) {
+      startTime = new Date(startTimeParam);
+      if (isNaN(startTime.getTime())) {
         return NextResponse.json(
-          { error: "Invalid show_date format. Use ISO 8601 (e.g., 2025-01-07)." },
+          { error: "Invalid start_time format. Use ISO 8601 (e.g., 2025-01-07T14:30:00)." },
+          { status: 400 }
+        );
+      }
+    }
+
+    // Parse selected_date if provided
+    let selectedDate = null;
+    if (selectedDateParam) {
+      selectedDate = new Date(selectedDateParam);
+      if (isNaN(selectedDate.getTime())) {
+        return NextResponse.json(
+          { error: "Invalid selected_date format. Use ISO 8601 (e.g., 2025-01-07)." },
           { status: 400 }
         );
       }
@@ -34,14 +47,20 @@ export async function GET(request: NextRequest) {
 
     const where: Prisma.ShowtimeWhereInput = {};
 
-    if (showDate) {
-      showDate.setHours(0, 0, 0, 0);
-      const nextDay = new Date(showDate);
-      nextDay.setDate(showDate.getDate() + 1);
+    if (startTime) {
+      const nextHour = new Date(startTime);
+      nextHour.setHours(nextHour.getHours() + 1);
 
+      where.start_time = {
+        gte: startTime,
+        lt: nextHour,
+      };
+    }
+
+    if (selectedDate) {
       where.show_date = {
-        gte: showDate,
-        lt: nextDay,
+        gte: selectedDate,
+        lt: new Date(selectedDate.getTime() + 86400000), // 86400000 is the number of milliseconds in a day
       };
     }
 
@@ -50,7 +69,12 @@ export async function GET(request: NextRequest) {
     }
 
     // Use Prisma.ShowtimeScalarFieldEnum for distinct
-    const distinct: Prisma.ShowtimeScalarFieldEnum[] = showDate ? ["movie_id"] : [];
+    let distinct: Prisma.ShowtimeScalarFieldEnum[] = [];
+
+    // If only date is provided, return distinct movies
+    if (selectedDate && !movieId) {
+      distinct = ["movie_id"];
+    }
 
     // Fetch showtimes
     const [showtimes, total] = await Promise.all([
@@ -58,7 +82,7 @@ export async function GET(request: NextRequest) {
         where,
         skip,
         take: limit,
-        distinct, // Apply distinct only when show_date is present
+        distinct,
         include: {
           movie: true,
         },

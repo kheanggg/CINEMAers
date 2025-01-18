@@ -6,10 +6,11 @@ import React from "react";
 // Dynamically import ReactPlayer to disable server-side rendering
 const ReactPlayer = dynamic(() => import("react-player"), { ssr: false });
 
-const TrailerPlayer: React.FC<{ url: string }> = ({ url }) => {
+const TrailerPlayer: React.FC<{ trailerUrl: string }> = ({ trailerUrl }) => {
   return (
     <div className="flex justify-center items-center">
-      <ReactPlayer url={url} controls width="100%" height="500px"/>
+      {/* Pass the url prop to ReactPlayer */}
+      <ReactPlayer url={trailerUrl} controls width="100%" height="500px" />
     </div>
   );
 };
