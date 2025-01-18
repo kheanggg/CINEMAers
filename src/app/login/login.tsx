@@ -16,18 +16,18 @@ const Login: React.FC = () => {
         height: "100vh",
       }}
     >
-      <div className="flex flex-row md:rounded-[15px]">
-        <div className="relative w-[241px] h-[600px] overflow-hidden hidden md:block">
+      <div className="flex flex-row rounded-[15px] overflow-hidden">
+        <div className="relative w-[241px] h-[585] overflow-hidden hidden md:block">
           <Image
             src="/login_assets/login_image_container.jpg"
             alt="water tower image"
-            width={241}
-            height={600}
+            layout="fill"
+            objectFit="cover"
           />
         </div>
 
         <div
-          className="w-[603px] h-[600px] p-8"
+          className="w-[603px] h-[585px] p-8 content-center"
           style={{ backgroundColor: "#1D1B1B", opacity: 0.8 }}
         >
           <h2 className="text-2xl font-bold mb-6 text-center text-white">
