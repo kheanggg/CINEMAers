@@ -5,17 +5,18 @@ import EditMovieDetail from "@/app/components/admin/movies/EditMovieDetail";
 import DeleteMovie from "@/app/components/admin/movies/DeleteMovie";
 import AlertPage from "@/app/components/AlertPage";
 import Image from "next/image";
+import { MovieDetails } from "@/app/types";
 
-interface MovieDetails {
-  id: number;
-  title: string;
-  posterurl: string;
-  duration: number;
-  rating: string;
-  release_date: string;
-  genre: string;
-  description: string;
-}
+// interface MovieDetails {
+//   movie_id: number;
+//   title: string;
+//   posterurl: string;
+//   duration: number;
+//   rating: string;
+//   release_date: string;
+//   genre: string;
+//   description: string;
+// }
 
 export default function ManageMovies() {
   const [movies, setMovies] = useState<MovieDetails[]>([]);
@@ -49,7 +50,7 @@ export default function ManageMovies() {
         const response = await fetch("/api/movies");
         const data: MovieDetails[] = await response.json();
         const apiMovies = data.map((movie) => ({
-          id: movie.id, // Ensure this matches your API field names
+          movie_id: movie.movie_id, // Ensure this matches your API field names
           title: movie.title,
           posterurl: movie.posterurl,
           duration: movie.duration,
@@ -88,7 +89,7 @@ export default function ManageMovies() {
 
       if (response.ok) {
         setMovies((prevMovies) =>
-          prevMovies.filter((movie) => movie.id !== id)
+          prevMovies.filter((movie) => movie.movie_id !== id)
         );
         setShowModal2(false); // Close the modal after successful delete
         handleSuccess(); // Show success message
@@ -103,6 +104,9 @@ export default function ManageMovies() {
 
   const handleEdit = async (id: number | null, movie: MovieDetails) => {
     try {
+      console.log("Editing movie with ID:", id);
+      console.log("Movie data being sent:", movie);
+
       const response = await fetch(`/api/movies?id=${id}`, {
         method: "PUT",
         headers: {
@@ -111,14 +115,19 @@ export default function ManageMovies() {
         body: JSON.stringify(movie),
       });
 
+      console.log("Response status:", response.status);
+
       if (response.ok) {
         const updatedMovie = await response.json();
+        console.log("Updated movie:", updatedMovie);
+
         setMovies((prevMovies) =>
-          prevMovies.map((m) => (m.id === id ? updatedMovie : m))
+          prevMovies.map((m) => (m.movie_id === id ? updatedMovie : m))
         );
         setShowModal1(false); // Close the modal after successful edit
         handleSuccess(); // Show success message
       } else {
+        console.log("Error in response:", await response.json());
         handleError(); // Show error if edit fails
       }
     } catch (error) {
@@ -154,7 +163,7 @@ export default function ManageMovies() {
             <div className="space-y-6">
               {filteredMovies.map((movie) => (
                 <div
-                  key={movie.id}
+                  key={movie.movie_id || movie.title}
                   className="flex items-center border p-4 rounded-lg shadow-md"
                 >
                   {/* Poster Image on the Left */}
@@ -186,7 +195,7 @@ export default function ManageMovies() {
                     <button
                       className="bg-blue-500 text-white px-4 py-2 w-[75px] rounded-md hover:bg-blue-600 mb-2"
                       onClick={() => {
-                        setSelectedMovieId(movie.id);
+                        setSelectedMovieId(movie.movie_id);
                         setShowModal1(true);
                       }}
                     >
@@ -196,7 +205,7 @@ export default function ManageMovies() {
                       className="bg-red-500 text-white px-4 py-2 w-[75px] rounded-md hover:bg-red-600"
                       onClick={() => {
                         setShowModal2(true);
-                        setSelectedMovieId(movie.id);
+                        setSelectedMovieId(movie.movie_id);
                       }}
                     >
                       Delete

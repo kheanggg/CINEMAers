@@ -24,7 +24,11 @@ export default function Movie() {
     }
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+    >
+  ) => {
     const { name, value } = e.target;
 
     setFormData((prev) => ({
@@ -42,6 +46,10 @@ export default function Movie() {
       return;
     }
 
+    // Log the form data before appending it to FormData
+    console.log("Form Data:", formData);
+    console.log("Parsed Duration:", parsedDuration);
+
     const dataToSend = new FormData();
     dataToSend.append("title", formData.title);
     dataToSend.append("release_date", formData.release_date);
@@ -52,6 +60,7 @@ export default function Movie() {
     dataToSend.append("trailerurl", formData.trailerurl);
 
     if (file) {
+      console.log("Poster file:", file);
       dataToSend.append("poster", file); // 'poster' is the key for the file
     }
 
@@ -98,7 +107,10 @@ export default function Movie() {
 
             {/* Release Date */}
             <div>
-              <label htmlFor="release_date" className="block text-sm font-medium mb-1">
+              <label
+                htmlFor="release_date"
+                className="block text-sm font-medium mb-1"
+              >
                 Release Date
               </label>
               <input
@@ -113,7 +125,10 @@ export default function Movie() {
 
             {/* Movie Rate */}
             <div>
-              <label htmlFor="rating" className="block text-sm font-medium mb-1">
+              <label
+                htmlFor="rating"
+                className="block text-sm font-medium mb-1"
+              >
                 Movie Rating
               </label>
               {isCustomRate ? (
@@ -148,7 +163,9 @@ export default function Movie() {
                   <option value="">Select movie rating</option>
                   <option value="G">G - General Audience</option>
                   <option value="PG">PG - Parental Guidance Suggested</option>
-                  <option value="PG-13">PG-13 - Parents Strongly Cautioned</option>
+                  <option value="PG-13">
+                    PG-13 - Parents Strongly Cautioned
+                  </option>
                   <option value="R">R - Restricted</option>
                   <option value="NC-17">NC-17 - Adults Only</option>
                   <option value="custom">Add New Rate</option>
@@ -184,7 +201,10 @@ export default function Movie() {
 
             {/* Movie Duration */}
             <div>
-              <label htmlFor="duration" className="block text-sm font-medium mb-1">
+              <label
+                htmlFor="duration"
+                className="block text-sm font-medium mb-1"
+              >
                 Duration (minutes)
               </label>
               <input
@@ -200,7 +220,10 @@ export default function Movie() {
 
             {/* Movie Poster URL (File Upload) */}
             <div>
-              <label htmlFor="posterurl" className="block text-sm font-medium mb-1">
+              <label
+                htmlFor="posterurl"
+                className="block text-sm font-medium mb-1"
+              >
                 Movie Poster (PNG/JPEG)
               </label>
               <input
@@ -215,7 +238,10 @@ export default function Movie() {
 
             {/* Movie Trailer URL */}
             <div>
-              <label htmlFor="trailerurl" className="block text-sm font-medium mb-1">
+              <label
+                htmlFor="trailerurl"
+                className="block text-sm font-medium mb-1"
+              >
                 Movie Trailer URL
               </label>
               <input
@@ -231,7 +257,10 @@ export default function Movie() {
 
             {/* Movie Description */}
             <div className="col-span-2">
-              <label htmlFor="description" className="block text-sm font-medium mb-1">
+              <label
+                htmlFor="description"
+                className="block text-sm font-medium mb-1"
+              >
                 Movie Description
               </label>
               <textarea

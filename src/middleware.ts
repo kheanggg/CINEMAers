@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { jwtVerify } from "jose";  // Import from 'jose'
+import { jwtVerify } from "jose"; // Import from 'jose'
 
 export async function middleware(req: NextRequest) {
   const token = req.cookies.get("token")?.value;
@@ -15,7 +15,7 @@ export async function middleware(req: NextRequest) {
   }
 
   try {
-    const secret = new TextEncoder().encode(process.env.JWT_SECRET!);  // Ensure the secret is in the correct format for jose
+    const secret = new TextEncoder().encode(process.env.JWT_SECRET!); // Ensure the secret is in the correct format for jose
 
     // Verify the JWT using jose's jwtVerify function
     const { payload } = await jwtVerify(token, secret);
@@ -27,10 +27,10 @@ export async function middleware(req: NextRequest) {
 
     // You can pass the decoded JWT info as a cookie to the client-side if necessary
     response.cookies.set("user", user, {
-      httpOnly: true,  // Keep it secure
-      secure: process.env.NODE_ENV === "production",  // Use secure cookies in production
+      httpOnly: true, // Keep it secure
+      secure: process.env.NODE_ENV === "production", // Use secure cookies in production
       path: "/",
-      maxAge: 3600, // 1 hour
+      maxAge: 6 * 60 * 60, // 1 hour
     });
 
     return response; // Continue to the endpoint

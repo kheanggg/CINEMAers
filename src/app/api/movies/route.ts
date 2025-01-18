@@ -148,6 +148,17 @@ export async function POST(request: NextRequest) {
     const trailerurl = formData.get("trailerurl")?.toString() || "";
     const poster = formData.get("poster") as File | null;
 
+    // Log the extracted form data
+    console.log("Form data received on server:");
+    console.log("Title:", title);
+    console.log("Description:", description);
+    console.log("Release Date:", release_date);
+    console.log("Duration:", duration);
+    console.log("Genre:", genre);
+    console.log("Rating:", rating);
+    console.log("Trailer URL:", trailerurl);
+    console.log("Poster file:", poster ? poster.name : "No poster uploaded");
+
     // Validate the required fields
     if (
       !title ||
@@ -177,7 +188,13 @@ export async function POST(request: NextRequest) {
 
       // Upload the poster to S3 and get the URL
       posterS3Url = await uploadFileToS3(buffer, fileName, poster.type);
+
+      // Log the length of the Poster URL after upload
+      console.log("Length of Poster URL after upload:", posterS3Url.length);
     }
+
+    // Log the length of Trailer URL
+    console.log("Length of Trailer URL:", trailerurl.length);
 
     // Format the release date
     const formattedReleaseDate = new Date(release_date);
@@ -199,7 +216,10 @@ export async function POST(request: NextRequest) {
     // Return the created movie
     return NextResponse.json(newMovie, { status: 201 });
   } catch (error) {
-    console.error("Error creating movie:", error);
+    console.error(
+      "Error creating movie:",
+      error instanceof Error ? error.message : error
+    );
     return NextResponse.json(
       { message: "Error creating movie." },
       { status: 500 }
@@ -213,6 +233,7 @@ export async function PATCH(request: NextRequest) {
   const id = searchParams.get("id"); // Get the movie ID from the query parameters
 
   if (!id) {
+    console.log("Movie ID is missing");
     return NextResponse.json(
       { message: "Movie ID is required." },
       { status: 400 }
@@ -220,9 +241,12 @@ export async function PATCH(request: NextRequest) {
   }
 
   const body = await request.json(); // Parse the request body
+  console.log("Request body:", body);
+
   const validation = updateMovie.safeParse(body); // Validate the input using Zod schema
 
   if (!validation.success) {
+    console.log("Validation failed:", validation.error.errors);
     return NextResponse.json(validation.error.errors, { status: 400 });
   }
 
@@ -232,11 +256,15 @@ export async function PATCH(request: NextRequest) {
       ? { ...body, release_date: new Date(body.release_date) }
       : body;
 
+    console.log("Updated data before saving to DB:", updatedData);
+
     // Update the movie in the database
     const updatedMovie = await prisma.movie.update({
       where: { movie_id: Number(id) },
       data: updatedData,
     });
+
+    console.log("Updated movie:", updatedMovie);
 
     // Return the updated movie as a response
     return NextResponse.json(updatedMovie);

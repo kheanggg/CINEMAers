@@ -2,24 +2,25 @@
 
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
+import { MovieDetails } from "@/app/types";
 
 interface EditMovieDetailProps {
   isVisible: boolean;
   onClose: () => void;
-  onEdit: (movie: MovieDetails) => void;
   movieId: number | null;
+  onEdit: (movie: MovieDetails) => Promise<void>; // Allow async function here
 }
 
-interface MovieDetails {
-  id: number;
-  title: string;
-  posterurl: string;
-  duration: number;
-  rating: string;
-  release_date: string;
-  genre: string;
-  description: string;
-}
+// interface MovieDetails {
+//   id: number;
+//   title: string;
+//   posterurl: string;
+//   duration: number;
+//   rating: string;
+//   release_date: string;
+//   genre: string;
+//   description: string;
+// }
 
 export default function EditMovieDetail({
   isVisible,
@@ -33,7 +34,7 @@ export default function EditMovieDetail({
   const [editedMovie, setEditedMovie] = useState<MovieDetails | null>(null);
 
   useEffect(() => {
-    if (movieId !== null) {
+    if (movieId !== null && movieId !== undefined) {
       const fetchMovie = async () => {
         setLoading(true);
         try {
@@ -46,8 +47,12 @@ export default function EditMovieDetail({
           }
 
           const data = await response.json();
-          setMovie(data[0]);
-          setEditedMovie(data[0]);
+          if (data && Array.isArray(data) && data.length > 0) {
+            setMovie(data[0]);
+            setEditedMovie(data[0]);
+          } else {
+            throw new Error("No movie data found.");
+          }
         } catch (err: unknown) {
           if (err instanceof Error) {
             setError(err.message);
