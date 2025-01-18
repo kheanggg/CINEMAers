@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { MessageCircle, ThumbsUp, ThumbsDown } from 'lucide-react';
+import { MessageCircle, ThumbsUp, ThumbsDown, Star } from 'lucide-react';
 
 interface Comment {
   id: number;
@@ -10,11 +10,13 @@ interface Comment {
   timestamp: string;
   likes: number;
   dislikes: number;
+  rating: number;
 }
 
 const CommentSection: React.FC = () => {
   const [comments, setComments] = useState<Comment[]>([]);
   const [newComment, setNewComment] = useState<string>('');
+  const [newRating, setNewRating] = useState<number>(5);
 
   useEffect(() => {
     const fetchComments = async () => {
@@ -37,10 +39,12 @@ const CommentSection: React.FC = () => {
       timestamp: 'Just now',
       likes: 0,
       dislikes: 0,
+      rating: newRating,
     };
 
     setComments([...comments, comment]);
     setNewComment('');
+    setNewRating(5);
   };
 
   const handleLike = (id: number) => {
@@ -61,6 +65,27 @@ const CommentSection: React.FC = () => {
     );
   };
 
+  const StarRating = ({ rating, setRating }: { rating: number; setRating?: (rating: number) => void }) => {
+    return (
+      <div className="flex items-center gap-1">
+        {[1, 2, 3, 4, 5].map((star) => (
+          <button
+            key={star}
+            onClick={() => setRating?.(star)}
+            disabled={!setRating}
+            className={`focus:outline-none ${
+              star <= rating
+                ? 'text-yellow-400 hover:text-yellow-500'
+                : 'text-gray-400 hover:text-gray-300'
+            }`}
+          >
+            <Star className="w-5 h-5 fill-current" />
+          </button>
+        ))}
+      </div>
+    );
+  };
+
   return (
     <div className="h-[475px] flex flex-col text-gray-200">
       {/* Header */}
@@ -77,9 +102,10 @@ const CommentSection: React.FC = () => {
               <div className="w-16 h-16 rounded-full bg-gray-700 flex items-center justify-center">
                 {comment.author.charAt(0)}
               </div>
-              <div>
+              <div className="flex-1">
                 <div className="mb-1 font-medium">{comment.author}</div>
-                <p className="mb-2 text-gray-300">{comment.content}</p>
+                <StarRating rating={comment.rating} />
+                <p className="my-2 text-gray-300">{comment.content}</p>
                 <div className="flex items-center gap-4">
                   <button
                     onClick={() => handleLike(comment.id)}
@@ -107,24 +133,30 @@ const CommentSection: React.FC = () => {
       <div className="border-t border-gray-800 p-4">
         <form
           onSubmit={handleSubmitComment}
-          className="flex items-center gap-2"
+          className="space-y-3"
         >
-          <textarea
-            className="w-2/3 p-2 rounded-lg bg-gray-900 border border-gray-800 
-                 focus:ring-2 focus:ring-blue-500 focus:border-transparent
-                 placeholder-gray-500 resize-none"
-            rows={1}
-            placeholder="Write a comment..."
-            value={newComment}
-            onChange={(e) => setNewComment(e.target.value)}
-          />
-          <button
-            type="submit"
-            className="px-4 py-2 bg-red-600 text-white rounded-lg 
-                 hover:bg-red-700 transition-colors"
-          >
-            Post Comment
-          </button>
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-gray-400">Rating:</span>
+            <StarRating rating={newRating} setRating={setNewRating} />
+          </div>
+          <div className="flex items-center gap-2">
+            <textarea
+              className="w-2/3 p-2 rounded-lg bg-gray-900 border border-gray-800 
+                   focus:ring-2 focus:ring-blue-500 focus:border-transparent
+                   placeholder-gray-500 resize-none"
+              rows={1}
+              placeholder="Write a comment..."
+              value={newComment}
+              onChange={(e) => setNewComment(e.target.value)}
+            />
+            <button
+              type="submit"
+              className="px-4 py-2 bg-red-600 text-white rounded-lg 
+                   hover:bg-red-700 transition-colors"
+            >
+              Post Comment
+            </button>
+          </div>
         </form>
       </div>
     </div>
