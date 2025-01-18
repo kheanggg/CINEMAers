@@ -1,5 +1,3 @@
-"use client";
-
 import React, { useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
@@ -13,24 +11,64 @@ const LoginForm: React.FC = () => {
   const [password, setPassword] = useState("");
   const [phoneNumber, setPhoneNumber] = useState(""); // This is used only in OTP context
   const [otp, setOtp] = useState("");
-  const [error, setError] = useState("");
+  const [error, setError] = useState({
+    email: "",
+    password: "",
+    phoneNumber: "",
+    otp: "",
+  });
   const [isPhoneLogin, setIsPhoneLogin] = useState(false);
   const router = useRouter();
 
   const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    let hasError = false;
+    const newError = { ...error };
+
+    if (!email) {
+      newError.email = "Please enter your email.";
+      hasError = true;
+    } else {
+      newError.email = "";
+    }
+
+    if (!password) {
+      newError.password = "Please enter your password.";
+      hasError = true;
+    } else {
+      newError.password = "";
+    }
+
     if (isPhoneLogin) {
-      // Use NextAuth's signIn function with the OTP provider
+      if (!phoneNumber) {
+        newError.phoneNumber = "Please enter your phone number.";
+        hasError = true;
+      } else {
+        newError.phoneNumber = "";
+      }
+
+      if (!otp) {
+        newError.otp = "Please enter your OTP.";
+        hasError = true;
+      } else {
+        newError.otp = "";
+      }
+    }
+
+    setError(newError);
+
+    if (hasError) return;
+
+    if (isPhoneLogin) {
       const result = await signIn("credentials", {
         redirect: false,
         phone_number: phoneNumber,
         otp: otp,
       });
       if (result?.error) {
-        setError(result.error);
+        setError({ ...newError, otp: result.error });
       } else {
-        setError("");
         router.push("/homepage");
       }
     } else {
@@ -41,9 +79,8 @@ const LoginForm: React.FC = () => {
       });
 
       if (result?.error) {
-        setError(result.error);
+        setError({ ...newError, password: result.error });
       } else {
-        setError("");
         router.push("/homepage");
       }
     }
@@ -58,7 +95,7 @@ const LoginForm: React.FC = () => {
     if (result.success) {
       alert("OTP sent to your phone!");
     } else {
-      setError(result.error || "Failed to send OTP");
+      setError({ ...error, otp: result.error || "Failed to send OTP" });
     }
   };
 
@@ -70,6 +107,8 @@ const LoginForm: React.FC = () => {
           password={password}
           setEmail={setEmail}
           setPassword={setPassword}
+          errorEmail={error.email} // Pass errorEmail here
+          errorPassword={error.password} // Pass errorPassword here
         />
       ) : (
         <OtpLogin
@@ -78,12 +117,9 @@ const LoginForm: React.FC = () => {
           setPhoneNumber={setPhoneNumber}
           setOtp={setOtp}
           sendOtp={sendOtp}
+          errorPhone={error.phoneNumber}
+          errorOtp={error.otp}
         />
-      )}
-
-      {/* Display error message */}
-      {error && (
-        <div className="text-red-600 mt-2 text-center">{error}</div>
       )}
 
       <div className="flex justify-between mt-3">
@@ -127,11 +163,6 @@ const LoginForm: React.FC = () => {
           iconSrc="/login_assets/google_icon.svg"
           onClick={handleGoogleLogin}
         />
-        <SocialLoginButton
-          provider="Facebook"
-          iconSrc="/login_assets/facebook_icon.svg"
-          onClick={() => alert("Facebook login not implemented yet")}
-        />
       </div>
     </form>
   );
@@ -143,7 +174,6 @@ interface Result {
 }
 
 const sendOtpToPhone = async (): Promise<Result> => {
-  // Example function to simulate sending OTP
   return { success: true };
 };
 
