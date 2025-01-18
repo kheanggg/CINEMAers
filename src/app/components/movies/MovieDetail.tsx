@@ -1,7 +1,6 @@
 "use client";
 import React from "react";
 import TrailerPlayer from "./TrailerPlayer";
-import { useState, useEffect } from "react";
 import MovieDescription from "./MovieDescription";
 import MovieTitle from "./MovieTitle";
 import ShowTime from "./ShowTime";
