@@ -12,6 +12,7 @@ export async function GET(request: NextRequest) {
     const page = parseInt(searchParams.get("page") || "1", 10);
     const limit = parseInt(searchParams.get("limit") || "10", 10);
 
+    // Validate pagination parameters
     if (page < 1 || limit < 1) {
       return NextResponse.json(
         { error: "Page and limit must be positive integers." },
@@ -45,6 +46,7 @@ export async function GET(request: NextRequest) {
       }
     }
 
+    // Build the where clause
     const where: Prisma.ShowtimeWhereInput = {};
 
     if (startTime) {
@@ -60,7 +62,7 @@ export async function GET(request: NextRequest) {
     if (selectedDate) {
       where.show_date = {
         gte: selectedDate,
-        lt: new Date(selectedDate.getTime() + 86400000), // 86400000 is the number of milliseconds in a day
+        lt: new Date(selectedDate.getTime() + 86400000), // 1 day in milliseconds
       };
     }
 
@@ -68,21 +70,19 @@ export async function GET(request: NextRequest) {
       where.movie_id = Number(movieId);
     }
 
-    // Use Prisma.ShowtimeScalarFieldEnum for distinct
+    // Determine distinct fields
     let distinct: Prisma.ShowtimeScalarFieldEnum[] = [];
-
-    // If only date is provided, return distinct movies
     if (selectedDate && !movieId) {
       distinct = ["movie_id"];
     }
 
-    // Fetch showtimes
+    // Fetch showtimes and total count
     const [showtimes, total] = await Promise.all([
       prisma.showtime.findMany({
         where,
         skip,
         take: limit,
-        distinct,
+        distinct: distinct.length > 0 ? distinct : undefined,
         include: {
           movie: true,
         },
@@ -90,6 +90,7 @@ export async function GET(request: NextRequest) {
       prisma.showtime.count({ where }),
     ]);
 
+    // Handle no results
     if (!showtimes.length) {
       return NextResponse.json(
         { message: "No showtimes found for the specified filters." },
@@ -97,6 +98,7 @@ export async function GET(request: NextRequest) {
       );
     }
 
+    // Return results with pagination metadata
     return NextResponse.json({
       data: showtimes,
       pagination: {

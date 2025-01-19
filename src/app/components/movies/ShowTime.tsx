@@ -69,9 +69,12 @@ const ShowTime: React.FC<{ movieDetails: MovieDetails }> = ({ movieDetails }) =>
       try {
         setLoading(true);
         const response = await axios.get<{
-          data: { cinema_id: number; start_time: string; movie_id: number; runtime: number }[];
+          data: { cinema_id: number; selected_date: string; start_time: string; movie_id: number; runtime: number }[];
         }>(`http://localhost:3000/api/showtime`, {
-          params: { movie_id },
+          params: { 
+            movie_id,
+            selected_date: date
+            },
         });
 
         const { data } = response.data;
@@ -84,9 +87,10 @@ const ShowTime: React.FC<{ movieDetails: MovieDetails }> = ({ movieDetails }) =>
         const parsedShowtimes: Showtime[] = filteredData.reduce(
           (acc: Showtime[], item) => {
             const cinemaName = cinemas[item.cinema_id] || `Cinema ID: ${item.cinema_id}`;
-            const time = new Date(item.start_time).toLocaleTimeString([], {
+            const time = new Date(item.start_time).toLocaleTimeString('en-US', {
               hour: "2-digit",
               minute: "2-digit",
+              hour12: true,
             });
 
             const existingCinema = acc.find((show) => show.location === cinemaName);
@@ -141,17 +145,19 @@ const ShowTime: React.FC<{ movieDetails: MovieDetails }> = ({ movieDetails }) =>
               <PlaceIcon sx={{ color: "red", fontSize: 30 }} />
               <h4 className="font-thin text-lg ml-2">{show.location}</h4>
             </div>
-            <div className="grid grid-cols-2 gap-4 mt-5">
-              {show.times.map((timeObj, i) => (
-                <Button
-                  key={i}
-                  variant="outlined"
-                  onClick={() => handleTimeSelection(timeObj.time, show.location)}
-                  className="text-white border-white rounded-lg h-12 hover:bg-white/10 hover:border-white transition-colors duration-300"
-                >
-                  {timeObj.time}
-                </Button>
-              ))}
+            <div className="grid grid-cols-2 mt-5">
+              <div className="flex gap-4">
+                {show.times.map((timeObj, i) => (
+                  <Button
+                    key={i}
+                    variant="outlined"
+                    onClick={() => handleTimeSelection(timeObj.time, show.location)}
+                    className="text-white border-white w-[100px] rounded-lg h-12 hover:bg-white/10 hover:border-white transition-colors duration-300"
+                  >
+                    {timeObj.time}
+                  </Button>
+                ))}
+              </div>
             </div>
           </div>
         ))
