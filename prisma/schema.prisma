@@ -26,6 +26,7 @@ model Showtime {
   showtime_id Int      @id @default(autoincrement())
   movie_id    Int
   cinema_id   Int
+  hall_id     Int
   show_date   DateTime
   start_time  DateTime
   runtime     Int

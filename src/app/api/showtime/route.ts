@@ -113,7 +113,6 @@ export async function GET(request: NextRequest) {
     const errorMessage =
       error instanceof Error ? error.message : "An unknown error occurred.";
     console.error("Error fetching showtimes:", errorMessage);
-
     return NextResponse.json(
       { error: "Failed to fetch showtimes.", details: errorMessage },
       { status: 500 }

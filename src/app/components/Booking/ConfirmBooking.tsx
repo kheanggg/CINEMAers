@@ -13,7 +13,7 @@ interface BookingDetails {
   time: string;
   date: string;
   format: string;
-  hall: string;
+  hall: number;
   cinema: string;
   posterurl: string;
   selectedSeats: { [key: string]: boolean };

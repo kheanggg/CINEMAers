@@ -103,7 +103,6 @@ export const MovieDetail: React.FC<MovieDetailProps> = ({ movie, date }) => {
       </div>
 
       {/* ShowTime and Comment Section */}
-      <div>{date}</div>
       <ShowTime movieDetails={{ movie, date }} />
       <div className="mt-10">
         <CommentSection/>

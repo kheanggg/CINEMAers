@@ -15,7 +15,7 @@ interface BookingDetails {
   time: string;
   date: string;
   format: string;
-  hall: string;
+  hall: number;
   cinema: string;
 }
 
@@ -29,7 +29,7 @@ export default function SeatSelection({
   const rows = 7;
   const columns = 13;
   const labels = ["G", "F", "E", "D", "C", "B", "A"];
-  const { movieTitle, time, date } = bookingDetails;
+  const { movieTitle, time, hall, date } = bookingDetails;
 
   const [mounted, setMounted] = useState(false);
   const [selectedSeats, setSelectedSeats] = useState<{
@@ -245,7 +245,7 @@ export default function SeatSelection({
                 <h5>2D</h5>
 
                 <h5>Hall:</h5>
-                <h5>5</h5>
+                <h5>{hall}</h5>
 
                 <h5>Cinema:</h5>
                 <h5>AEON MALL MEANCHEY</h5>

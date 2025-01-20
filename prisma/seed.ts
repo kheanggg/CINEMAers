@@ -71,6 +71,7 @@ async function main() {
       {
         movie_id: movie1.movie_id,
         cinema_id: cinema1.cinema_id,
+        hall_id: 1,
         show_date: new Date(), // Use the current date and time (if that's what you want)
         start_time: new Date('2025-01-10T14:30:00'), // Start time is valid ISO string
         runtime: 86,
@@ -78,6 +79,7 @@ async function main() {
       {
         movie_id: movie1.movie_id,
         cinema_id: cinema2.cinema_id, // Another cinema ID for the second showtime
+        hall_id: 2,
         show_date: new Date(), // Current date and time
         start_time: new Date('2025-01-08T17:45:00'), // Another valid start time
         runtime: 86,

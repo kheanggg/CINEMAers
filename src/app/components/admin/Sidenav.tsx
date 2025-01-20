@@ -66,7 +66,7 @@ const SideNav = () => {
             onClick={() => toggleSection("showtime")}
             className="flex justify-between items-center w-full text-left font-bold text-lg p-2 hover:bg-[#ded9d6] rounded-md"
           >
-            Showtime
+            Manage Showtime
             {openSections.showtime ? (
               <ExpandLessIcon />
             ) : (
@@ -75,7 +75,7 @@ const SideNav = () => {
           </button>
           {openSections.showtime && (
             <ul className="ml-4 mt-2 space-y-2">
-              <li className="hover:underline cursor-pointer" onClick={() => navigateToPage('/showtime/manage')}>Manage Showtime</li>
+              <li className="hover:underline cursor-pointer" onClick={() => navigateToPage('/showtime/manage')}>Add Showtime</li>
             </ul>
           )}
         </div>
