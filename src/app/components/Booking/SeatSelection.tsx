@@ -29,13 +29,14 @@ export default function SeatSelection({
   const rows = 7;
   const columns = 13;
   const labels = ["G", "F", "E", "D", "C", "B", "A"];
-  const { movieTitle, time, hall, date } = bookingDetails;
+  const { movieTitle, time, date, hall } = bookingDetails;
 
   const [mounted, setMounted] = useState(false);
   const [selectedSeats, setSelectedSeats] = useState<{
     [key: string]: boolean;
   }>({});
   const [exit, setExit] = useState(false); // Control the confirmation popup
+  const [noSeatSelected, setNoSeatSelected] = useState(false); // New state for no seat selected message
 
   const toggleSeatSelection = (row: string, col: number) => {
     const seatKey = `${row}${col}`;
@@ -161,54 +162,12 @@ export default function SeatSelection({
               ))}
             </div>
 
-            {/* VIP Seats Row */}
-            <div className="mt-7 grid grid-cols-[1fr_repeat(6,_3fr)_1fr] w-[90%] mx-auto gap-4">
-              <div className="flex justify-center items-center">
-                <h5 className="text-[#DC9C14]">VIP</h5>
-              </div>
-              {Array.from({ length: 6 }, (_, colIndex) => {
-                const seatKey = `VIP${colIndex + 1}`;
-                const isSelected = selectedSeats[seatKey];
-
-                return (
-                  <div
-                    key={seatKey}
-                    onClick={() => toggleSeatSelection("VIP", colIndex + 1)}
-                    className={`flex justify-center items-center cursor-pointer transition-all rounded-[50%] h-6 w-6 mx-auto gap-0`}
-                  >
-                    <ChairIcon
-                      className={`text-center ${
-                        isSelected ? "text-[#FF0000]" : "text-[#474343]"
-                      }`}
-                    />
-                    <ChairIcon
-                      className={`text-center ${
-                        isSelected ? "text-[#FF0000]" : "text-[#474343]"
-                      }`}
-                    />
-                    <span className="fixed text-[10px]">{colIndex + 1}</span>
-                  </div>
-                );
-              })}
-              <div className="flex justify-center items-center">
-                <h5 className="text-[#DC9C14]">VIP</h5>
-              </div>
-            </div>
-
             <div>
               <div className="mt-7 bg-[#474343] h-[1px] w-[55%] mx-auto"></div>
-              <div className="mt-7 w-[55%] mx-auto grid grid-cols-2">
+              <div className="mt-7 w-[55%] mx-auto">
                 <div className="text-center">
                   <ChairIcon />
                   <h5 className="text-[12px] text-[#FF0000]">Adult Seat</h5>
-                  <h5 className="text-[12px] text-[#FF0000]">3.50$</h5>
-                </div>
-                <div className="text-center">
-                  <div>
-                    <ChairIcon />
-                    <ChairIcon />
-                  </div>
-                  <h5 className="text-[12px] text-[#FF0000]">VIP Seat</h5>
                   <h5 className="text-[12px] text-[#FF0000]">3.50$</h5>
                 </div>
               </div>
@@ -266,13 +225,23 @@ export default function SeatSelection({
               <div
                 className="mt-3 bg-[#FF0000] w-[50%] h-[50px] py-3 rounded-2xl mx-auto transition-all duration-300 hover:bg-[#CC0000] active:scale-95 cursor-pointer"
                 onClick={() => {
-                  onClose();
-                  setShowConfirmBooking(true);
-                  setSelectedSeats2(selectedSeats);
+                  if (Object.keys(selectedSeats).length === 0) {
+                    setNoSeatSelected(true);
+                  } else {
+                    onClose();
+                    setShowConfirmBooking(true);
+                    setSelectedSeats2(selectedSeats);
+                    setNoSeatSelected(false);
+                  }
                 }}
               >
                 <h5 className="text-[18px] text-center">Confirm</h5>
               </div>
+              {noSeatSelected && (
+                <div className="text-center text-red-500 mt-2">
+                  No seats were selected. Please select at least one seat.
+                </div>
+              )}
             </div>
           </div>
         </div>
