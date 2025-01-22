@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
+import { useSession } from 'next-auth/react';
 import { MessageCircle, ThumbsUp, ThumbsDown, Star } from 'lucide-react';
 
 interface Comment {
@@ -14,6 +15,7 @@ interface Comment {
 }
 
 const CommentSection: React.FC = () => {
+  const { data: session } = useSession();
   const [comments, setComments] = useState<Comment[]>([]);
   const [newComment, setNewComment] = useState<string>('');
   const [newRating, setNewRating] = useState<number>(5);
@@ -34,7 +36,7 @@ const CommentSection: React.FC = () => {
 
     const comment: Comment = {
       id: comments.length + 1,
-      author: 'Current User',
+      author: session?.user?.name || 'Anonymous',
       content: newComment,
       timestamp: 'Just now',
       likes: 0,
@@ -130,35 +132,41 @@ const CommentSection: React.FC = () => {
       </div>
 
       {/* Fixed Comment Input Section */}
-      <div className="border-t border-gray-800 p-4">
-        <form
-          onSubmit={handleSubmitComment}
-          className="space-y-3"
-        >
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-gray-400">Rating:</span>
-            <StarRating rating={newRating} setRating={setNewRating} />
-          </div>
-          <div className="flex items-center gap-2">
-            <textarea
-              className="w-2/3 p-2 rounded-lg bg-gray-900 border border-gray-800 
-                   focus:ring-2 focus:ring-blue-500 focus:border-transparent
-                   placeholder-gray-500 resize-none"
-              rows={1}
-              placeholder="Write a comment..."
-              value={newComment}
-              onChange={(e) => setNewComment(e.target.value)}
-            />
-            <button
-              type="submit"
-              className="px-4 py-2 bg-red-600 text-white rounded-lg 
-                   hover:bg-red-700 transition-colors"
-            >
-              Post Comment
-            </button>
-          </div>
-        </form>
-      </div>
+      {session ? (
+        <div className="border-t border-gray-800 p-4">
+          <form
+            onSubmit={handleSubmitComment}
+            className="space-y-3"
+          >
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-gray-400">Rating:</span>
+              <StarRating rating={newRating} setRating={setNewRating} />
+            </div>
+            <div className="flex items-center gap-2">
+              <textarea
+                className="w-2/3 p-2 rounded-lg bg-gray-900 border border-gray-800 
+                     focus:ring-2 focus:ring-blue-500 focus:border-transparent
+                     placeholder-gray-500 resize-none"
+                rows={1}
+                placeholder="Write a comment..."
+                value={newComment}
+                onChange={(e) => setNewComment(e.target.value)}
+              />
+              <button
+                type="submit"
+                className="px-4 py-2 bg-red-600 text-white rounded-lg 
+                     hover:bg-red-700 transition-colors"
+              >
+                Post Comment
+              </button>
+            </div>
+          </form>
+        </div>
+      ) : (
+        <div className="border-t border-gray-800 p-4 text-center text-gray-400">
+          Please log in to post a comment.
+        </div>
+      )}
     </div>
   );
 };

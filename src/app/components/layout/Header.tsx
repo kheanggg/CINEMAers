@@ -1,6 +1,6 @@
 "use client";
 import * as React from "react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import IconButton from "@mui/material/IconButton";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import PersonIcon from "@mui/icons-material/Person";
@@ -20,8 +20,9 @@ import {
   DialogTitle,
   DialogContent,
   Button,
+  Menu,
 } from "@mui/material";
-import { useSession } from "next-auth/react";
+import { useSession, signOut } from "next-auth/react";
 
 // Types remain the same
 interface NewsletterModalProps {
@@ -133,9 +134,11 @@ const NewsletterModal: React.FC<NewsletterModalProps> = ({ open, onClose }) => {
 const Header: React.FC = () => {
   const { data: session } = useSession();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [userMenuAnchorEl, setUserMenuAnchorEl] = useState<null | HTMLElement>(null);
   const [hasNotification, setHasNotification] = useState(true);
   const [language, setLanguage] = useState<string>("EN");
   const [isNewsletterModalOpen, setIsNewsletterModalOpen] = useState(false);
+  const [isVisible, setIsVisible] = useState(true);
 
   const countries: { [key: string]: Country } = {
     EN: { flag: "https://flagcdn.com/w320/gb.png" },
@@ -169,11 +172,40 @@ const Header: React.FC = () => {
     await new Promise((resolve) => setTimeout(resolve, 1500));
   };
 
+  const handleUserMenuClick = (event: React.MouseEvent<HTMLElement>) => {
+    setUserMenuAnchorEl(event.currentTarget);
+  };
+
+  const handleUserMenuClose = () => {
+    setUserMenuAnchorEl(null);
+  };
+
+  const handleLogout = () => {
+    signOut();
+  };
+
   const open = Boolean(anchorEl);
+  const userMenuOpen = Boolean(userMenuAnchorEl);
   const id = open ? "notification-popover" : undefined;
 
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 50) {
+        setIsVisible(false);
+      } else {
+        setIsVisible(true);
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
+
   return (
-    <header className="fixed top-0 left-0 right-0 z-50">
+    <header className={`fixed top-0 left-0 right-0 z-50 transition-transform duration-300 ${isVisible ? 'transform translate-y-0' : 'transform -translate-y-full'}`}>
       <div className="container mx-auto px-4 pt-10">
         <div className="max-w-[1125px] mx-auto">
           <div className="flex justify-between items-center">
@@ -205,10 +237,18 @@ const Header: React.FC = () => {
                     width={45}
                     height={45}
                     style={{ borderRadius: "50%", objectFit: "cover" }}
+                    onClick={handleUserMenuClick}
                   />
                   <span className="text-xl flex justify-center items-center">
                     {session.user?.name || "User"}
                   </span>
+                  <Menu
+                    anchorEl={userMenuAnchorEl}
+                    open={userMenuOpen}
+                    onClose={handleUserMenuClose}
+                  >
+                    <MenuItem onClick={handleLogout}>Logout</MenuItem>
+                  </Menu>
                 </div>
               )}
             </div>

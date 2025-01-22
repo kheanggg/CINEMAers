@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'next/navigation';  // Importing the useParams hook from next/navigation
+import { useParams } from 'next/navigation';  // Importing the useParams and useRouter hooks from next/navigation
 import { MovieDetail } from '../../../components/movies/MovieDetail';  // Importing MovieDetail component
 import Footer from '@/app/components/homepage/slider/footer/Footer';  // Importing Footer component
 

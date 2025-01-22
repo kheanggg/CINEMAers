@@ -87,6 +87,7 @@ const LoginForm: React.FC = () => {
   };
 
   const handleGoogleLogin = () => {
+    setError({ email: "", password: "", phoneNumber: "", otp: "" }); // Reset errors
     signIn("google", { callbackUrl: "/homepage" });
   };
 
@@ -100,56 +101,58 @@ const LoginForm: React.FC = () => {
   };
 
   return (
-    <form onSubmit={handleLoginSubmit}>
-      {!isPhoneLogin ? (
-        <NormalLogin
-          email={email}
-          password={password}
-          setEmail={setEmail}
-          setPassword={setPassword}
-          errorEmail={error.email} // Pass errorEmail here
-          errorPassword={error.password} // Pass errorPassword here
-        />
-      ) : (
-        <OtpLogin
-          phoneNumber={phoneNumber}
-          otp={otp}
-          setPhoneNumber={setPhoneNumber}
-          setOtp={setOtp}
-          sendOtp={sendOtp}
-          errorPhone={error.phoneNumber}
-          errorOtp={error.otp}
-        />
-      )}
+    <>
+      <form onSubmit={handleLoginSubmit}>
+        {!isPhoneLogin ? (
+          <NormalLogin
+            email={email}
+            password={password}
+            setEmail={setEmail}
+            setPassword={setPassword}
+            errorEmail={error.email} // Pass errorEmail here
+            errorPassword={error.password} // Pass errorPassword here
+          />
+        ) : (
+          <OtpLogin
+            phoneNumber={phoneNumber}
+            otp={otp}
+            setPhoneNumber={setPhoneNumber}
+            setOtp={setOtp}
+            sendOtp={sendOtp}
+            errorPhone={error.phoneNumber}
+            errorOtp={error.otp}
+          />
+        )}
 
-      <div className="flex justify-between mt-3">
-        <div className="flex justify-center mb-1">
-          <button
-            type="button"
-            onClick={() => setIsPhoneLogin(!isPhoneLogin)}
-            className="text-blue-600 hover:underline"
+        <div className="flex justify-between mt-3">
+          <div className="flex justify-center mb-1">
+            <button
+              type="button"
+              onClick={() => setIsPhoneLogin(!isPhoneLogin)}
+              className="text-blue-600 hover:underline"
+            >
+              {isPhoneLogin ? "login with email" : "login with OTP"}
+            </button>
+          </div>
+          <Link
+            href="/login/forget"
+            className="hover:underline"
+            style={{ color: "#E79C11" }}
           >
-            {isPhoneLogin ? "login with email" : "login with OTP"}
+            forgot password?
+          </Link>
+        </div>
+
+        <div className="flex justify-center mt-4">
+          <button
+            type="submit"
+            className="p-2 bg-red-600 text-white rounded"
+            style={{ height: "42px", width: "119px", borderRadius: "45px" }}
+          >
+            LOGIN
           </button>
         </div>
-        <Link
-          href="/login/forget"
-          className="hover:underline"
-          style={{ color: "#E79C11" }}
-        >
-          forgot password?
-        </Link>
-      </div>
-
-      <div className="flex justify-center mt-4">
-        <button
-          type="submit"
-          className="p-2 bg-red-600 text-white rounded"
-          style={{ height: "42px", width: "119px", borderRadius: "45px" }}
-        >
-          LOGIN
-        </button>
-      </div>
+      </form>
 
       <div className="flex items-center justify-center mt-6">
         <hr className="flex-grow border-t border-gray-500 w-20" />
@@ -161,10 +164,10 @@ const LoginForm: React.FC = () => {
         <SocialLoginButton
           provider="Google"
           iconSrc="/login_assets/google_icon.svg"
-          onClick={handleGoogleLogin}
+          onClick={() => handleGoogleLogin()}
         />
       </div>
-    </form>
+    </>
   );
 };
 
