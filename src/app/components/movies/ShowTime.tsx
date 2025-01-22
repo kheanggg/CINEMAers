@@ -8,7 +8,7 @@ import SuccessfulBooking from "../Booking/SuccessfulBooking";
 
 interface Showtime {
   location: string;
-  times: { date: string; time: string; hall_id: number }[];
+  times: { date: string; time: string; hall_id: number; price: number }[];
 }
 
 interface MovieDetails {
@@ -40,6 +40,7 @@ const ShowTime: React.FC<{ movieDetails: MovieDetails }> = ({ movieDetails }) =>
   const [showSuccessfulBooking, setShowSuccessfulBooking] = useState(false);
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
   const [hallId, setHallId] = useState<number | null>(null);
+  const [price, setPrice] = useState<number | null>(null);
   const [selectedLocation, setSelectedLocation] = useState<string | null>(null);
   const [selectedSeats, setSelectedSeats] = useState<{ [key: string]: boolean }>({});
 
@@ -70,7 +71,7 @@ const ShowTime: React.FC<{ movieDetails: MovieDetails }> = ({ movieDetails }) =>
       try {
         setLoading(true);
         const response = await axios.get<{
-          data: { cinema_id: number; hall_id: number; selected_date: string; start_time: string; movie_id: number; runtime: number }[];
+          data: { cinema_id: number; hall_id: number; price: number; selected_date: string; start_time: string; movie_id: number; runtime: number }[];
         }>(`http://localhost:3000/api/showtime`, {
           params: {
             movie_id,
@@ -98,11 +99,11 @@ const ShowTime: React.FC<{ movieDetails: MovieDetails }> = ({ movieDetails }) =>
             const existingCinema = acc.find((show) => show.location === cinemaName);
 
             if (existingCinema) {
-              existingCinema.times.push({ date: item.start_time, time, hall_id: item.hall_id });
+              existingCinema.times.push({ date: item.start_time, time, hall_id: item.hall_id, price: item.price });
             } else {
               acc.push({
                 location: cinemaName,
-                times: [{ date: item.start_time, time, hall_id: item.hall_id }],
+                times: [{ date: item.start_time, time, hall_id: item.hall_id, price: item.price }],
               });
             }
             return acc;
@@ -127,9 +128,10 @@ const ShowTime: React.FC<{ movieDetails: MovieDetails }> = ({ movieDetails }) =>
     console.log('Showtimes updated:', showtimes);
   }, [showtimes]);
 
-  const handleTimeSelection = (time: string, location: string, hall_id: number) => {
+  const handleTimeSelection = (time: string, location: string, hall_id: number, price: number) => {
     setSelectedTime(time);
     setHallId(hall_id);
+    setPrice(price);
     setSelectedLocation(location);
     setShowSeatSelection(true);
   };
@@ -158,7 +160,7 @@ const ShowTime: React.FC<{ movieDetails: MovieDetails }> = ({ movieDetails }) =>
                     <Button
                       key={i}
                       variant="outlined"
-                      onClick={() => handleTimeSelection(timeObj.time, show.location, timeObj.hall_id)}
+                      onClick={() => handleTimeSelection(timeObj.time, show.location, timeObj.hall_id, timeObj.price)}
                       className="text-white border-white w-[100px] rounded-lg h-12 hover:bg-white/10 hover:border-white transition-colors duration-300"
                     >
                       {timeObj.time}
@@ -180,6 +182,7 @@ const ShowTime: React.FC<{ movieDetails: MovieDetails }> = ({ movieDetails }) =>
           date,
           format: "2D",
           hall: hallId!,
+          price: price!, // Pass the price
           cinema: selectedLocation!,
         }}
         setSelectedSeats2={setSelectedSeats}

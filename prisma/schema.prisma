@@ -29,9 +29,11 @@ model Showtime {
   hall_id     Int
   show_date   DateTime
   start_time  DateTime
+  price       Float
   runtime     Int
   movie       Movie    @relation(fields: [movie_id], references: [movie_id])
   cinema      Cinema   @relation(fields: [cinema_id], references: [cinema_id])
+  bookings     Booking[] // Add this line for the relation to bookings
 }
 
 model Movie {
@@ -70,6 +72,7 @@ model users {
   updated_at     DateTime?        @default(now()) @db.Timestamp(6)
   auth_providers auth_providers[]
   favorites      Favorite[]       // Add this line for the relation to favorites
+  bookings       Booking[]        // Add this line for the relation to bookings
 }
 
 model admin {
@@ -90,4 +93,15 @@ model Favorite {
   movie     Movie   @relation(fields: [movieId], references: [movie_id], onDelete: Cascade) // Relation to the movie table
 
   @@unique([userId, movieId]) // Prevents duplicate favorite entries for the same user and movie
+}
+
+model Booking {
+  id             Int       @id @default(autoincrement())
+  userId         Int
+  showtimeId     Int
+  seats          String    // Store selected seats as a comma-separated string (e.g., "A1,B2,C3")
+  totalPrice     Float
+  createdAt      DateTime  @default(now())
+  user           users     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  showtime       Showtime  @relation(fields: [showtimeId], references: [showtime_id], onDelete: Cascade)
 }

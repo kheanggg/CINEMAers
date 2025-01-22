@@ -17,6 +17,7 @@ interface BookingDetails {
   format: string;
   hall: number;
   cinema: string;
+  price: number;
 }
 
 export default function SeatSelection({
@@ -29,7 +30,7 @@ export default function SeatSelection({
   const rows = 7;
   const columns = 13;
   const labels = ["G", "F", "E", "D", "C", "B", "A"];
-  const { movieTitle, time, date, hall } = bookingDetails;
+  const { movieTitle, time, date, hall, price, cinema } = bookingDetails;
 
   const [mounted, setMounted] = useState(false);
   const [selectedSeats, setSelectedSeats] = useState<{
@@ -58,8 +59,7 @@ export default function SeatSelection({
   };
 
   const handleCancel = () => {
-    console.log("Cancel clicked");
-    setExit(false); // Cancel exit and keep the modal open
+    setExit(false);
   };
 
   useEffect(() => {
@@ -168,7 +168,7 @@ export default function SeatSelection({
                 <div className="text-center">
                   <ChairIcon />
                   <h5 className="text-[12px] text-[#FF0000]">Adult Seat</h5>
-                  <h5 className="text-[12px] text-[#FF0000]">3.50$</h5>
+                  <h5 className="text-[12px] text-[#FF0000]">{price}$</h5>
                 </div>
               </div>
             </div>
@@ -207,7 +207,7 @@ export default function SeatSelection({
                 <h5>{hall}</h5>
 
                 <h5>Cinema:</h5>
-                <h5>AEON MALL MEANCHEY</h5>
+                <h5>{cinema}</h5>
               </div>
             </div>
 
@@ -217,7 +217,7 @@ export default function SeatSelection({
                 <div className="grid grid-cols-2 mx-5">
                   <h5 className="text-[18px]">Total</h5>
                   <h5 className="text-[18px] text-[#FF0000] text-right">
-                    {Object.keys(selectedSeats).length * 3.5}${" "}
+                    {Object.keys(selectedSeats).length * price}${" "}
                     {/* Example price */}
                   </h5>
                 </div>
