@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
+import { useSession } from "next-auth/react"; // Import useSession from next-auth
 import ExitConfirmation from "./ExitConfirmation"; // Import the ExitConfirmation component
 
 interface ConfirmBooking {
@@ -18,6 +19,9 @@ interface BookingDetails {
   cinema: string;
   posterurl: string;
   selectedSeats: { [key: string]: boolean };
+  price: number; // Add price to the BookingDetails interface
+  totalPrice: number; // Add totalPrice to the BookingDetails interface
+  showtime_id: number; // Add showtime_id to the BookingDetails interface
 }
 
 export default function ConfirmBooking({
@@ -26,7 +30,9 @@ export default function ConfirmBooking({
   setShowSuccessfulBooking,
   bookingDetails,
 }: ConfirmBooking) {
-  const { movieTitle, time, posterurl, date } = bookingDetails;
+  const { movieTitle, time, posterurl, date, price, totalPrice, hall, cinema, selectedSeats, showtime_id } = bookingDetails; // Destructure price and totalPrice
+  const { data: session } = useSession(); // Get session data
+  const user_id = session?.user?.id; // Extract user_id from session
 
   const [mounted, setMounted] = useState(false);
   const [exit, setExit] = useState(false); // State for exit confirmation modal
@@ -89,10 +95,37 @@ export default function ConfirmBooking({
     return valid;
   };
 
-  const handleConfirm = () => {
+  const handleConfirm = async () => {
     if (validateForm()) {
-      setShowSuccessfulBooking(true); // Show successful booking modal
-      onClose(); // Close the current modal
+      const bookingDetails = {
+        price,
+        showtime_id,
+        seat: Object.keys(selectedSeats).join(", "),
+        total_price: totalPrice,
+        user_id
+      };
+
+      try {
+        const response = await fetch('/api/booking', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(bookingDetails),
+        });
+
+        if (response.ok) {
+          const result = await response.json();
+          console.log('Booking successful:', result);
+          setShowSuccessfulBooking(true); // Show successful booking modal
+          onClose(); // Close the current modal
+        } else {
+          const errorData = await response.text(); // Use text() to get the response body as a string
+          console.error('Booking failed:', errorData);
+        }
+      } catch (error) {
+        console.error('Error making booking request:', error);
+      }
     }
   };
 
@@ -180,23 +213,26 @@ export default function ConfirmBooking({
 
           <div className="w-full h-[200px] grid grid-cols-2 gap-2 py-5">
             <h5>Seat:</h5>
-            <h5>{Object.keys(bookingDetails.selectedSeats).join(", ")}</h5>
+            <h5>{Object.keys(selectedSeats).join(", ")}</h5>
 
             <h5>Format:</h5>
             <h5>2D</h5>
 
             <h5>Hall:</h5>
-            <h5>5</h5>
+            <h5>{hall}</h5>
 
             <h5>Cinema:</h5>
-            <h5>AEON MALL MEANCHEY</h5>
+            <h5>{cinema}</h5>
+
+            <h5>Price:</h5>
+            <h5>{price}$</h5> {/* Display the price */}
           </div>
 
           <div className="bg-[#474343] h-[1px] w-[80%] mx-auto"></div>
           <div className="mt-7 bg-[#474343] w-full h-[50px] py-3 rounded-xl">
             <div className="grid grid-cols-2 mx-5">
               <h5 className="text-[18px]">Total</h5>
-              <h5 className="text-[18px] text-[#FF0000] text-right">3.50$</h5>
+              <h5 className="text-[18px] text-[#FF0000] text-right">{totalPrice}$</h5>
             </div>
           </div>
           <div

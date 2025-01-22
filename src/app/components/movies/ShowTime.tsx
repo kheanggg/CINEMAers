@@ -200,6 +200,9 @@ const ShowTime: React.FC<{ movieDetails: MovieDetails }> = ({ movieDetails }) =>
           hall: hallId!,
           cinema: selectedLocation!,
           selectedSeats,
+          price: price!, // Pass the price
+          totalPrice: Object.keys(selectedSeats).length * price!, // Calculate and pass the total price
+          showtime_id: hallId!, // Add the showtime_id
         }}
       />
       <SuccessfulBooking
