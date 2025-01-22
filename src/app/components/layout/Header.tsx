@@ -1,8 +1,6 @@
 "use client";
 import * as React from "react";
-import { useState } from "react";
-import AppBar from "@mui/material/AppBar";
-import Toolbar from "@mui/material/Toolbar";
+import { useState, useEffect } from "react";
 import IconButton from "@mui/material/IconButton";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import PersonIcon from "@mui/icons-material/Person";
@@ -22,16 +20,22 @@ import {
   DialogTitle,
   DialogContent,
   Button,
+  Menu,
 } from "@mui/material";
-import { useSession } from "next-auth/react";
+import { useSession, signOut } from "next-auth/react";
 
-// Newsletter Subscription Modal Component
+// Types remain the same
 interface NewsletterModalProps {
   open: boolean;
   onClose: () => void;
   onSubscribe: (email: string) => Promise<void>;
 }
 
+interface Country {
+  flag: string;
+}
+
+// Newsletter Modal Component remains exactly the same
 const NewsletterModal: React.FC<NewsletterModalProps> = ({ open, onClose }) => {
   const [email, setEmail] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -39,8 +43,6 @@ const NewsletterModal: React.FC<NewsletterModalProps> = ({ open, onClose }) => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    // Basic email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       setErrorMessage("Please enter a valid email address");
@@ -52,7 +54,6 @@ const NewsletterModal: React.FC<NewsletterModalProps> = ({ open, onClose }) => {
 
     try {
       const response = await axios.post("/api/subscribe", { email });
-
       if (response.data.success) {
         setErrorMessage("Successfully subscribed!");
       } else {
@@ -130,20 +131,19 @@ const NewsletterModal: React.FC<NewsletterModalProps> = ({ open, onClose }) => {
   );
 };
 
-// Define types for the countries
-interface Country {
-  flag: string;
-}
-
 const Header: React.FC = () => {
   const { data: session } = useSession();
-
-
-
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [userMenuAnchorEl, setUserMenuAnchorEl] = useState<null | HTMLElement>(null);
   const [hasNotification, setHasNotification] = useState(true);
   const [language, setLanguage] = useState<string>("EN");
   const [isNewsletterModalOpen, setIsNewsletterModalOpen] = useState(false);
+  const [isVisible, setIsVisible] = useState(true);
+
+  const countries: { [key: string]: Country } = {
+    EN: { flag: "https://flagcdn.com/w320/gb.png" },
+    KH: { flag: "https://flagcdn.com/w320/kh.png" },
+  };
 
   const handleNotificationClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -168,44 +168,150 @@ const Header: React.FC = () => {
   };
 
   const handleSubscribe = async (email: string) => {
-    // Implement your newsletter subscription logic here
     console.log("Subscribing with email:", email);
-    // Simulating an API call
     await new Promise((resolve) => setTimeout(resolve, 1500));
-    // You would typically call your actual subscription API here
+  };
+
+  const handleUserMenuClick = (event: React.MouseEvent<HTMLElement>) => {
+    setUserMenuAnchorEl(event.currentTarget);
+  };
+
+  const handleUserMenuClose = () => {
+    setUserMenuAnchorEl(null);
+  };
+
+  const handleLogout = () => {
+    signOut();
   };
 
   const open = Boolean(anchorEl);
+  const userMenuOpen = Boolean(userMenuAnchorEl);
   const id = open ? "notification-popover" : undefined;
 
-  // Define country flags for languages
-  const countries: { [key: string]: Country } = {
-    EN: {
-      flag: "https://flagcdn.com/w320/gb.png", // UK flag for English
-    },
-    KH: {
-      flag: "https://flagcdn.com/w320/kh.png", // Cambodia flag
-    },
-  };
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 50) {
+        setIsVisible(false);
+      } else {
+        setIsVisible(true);
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
 
   return (
-    <>
-      <AppBar
-        position="absolute"
-        sx={{
-          width: "100%", // Ensure it spans the full width initially
-          backgroundColor: "transparent",
-          boxShadow: "0",
-          left: "0", // Align to the left edge of the viewport
-          top: "10px",
-        }}
-        className="mx-auto xs:w-[360px] sm:w-[390px] md:w-[750px] lg:w-[900px] xl:w-[1125px] top-10 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
-      >
-        <Toolbar className="px-0 justify-between">
-          <div className="flex gap-3">
-            {/* Conditionally render LOG IN button or Profile image based on session */}
-            {!session ? (
-              <Link href="/login" className="flex gap-3">
+    <header className={`fixed top-0 left-0 right-0 z-50 transition-transform duration-300 ${isVisible ? 'transform translate-y-0' : 'transform -translate-y-full'}`}>
+      <div className="container mx-auto px-4 pt-10">
+        <div className="max-w-[1125px] mx-auto">
+          <div className="flex justify-between items-center">
+            {/* Left side - Login/Profile */}
+            <div className="flex gap-3">
+              {!session ? (
+                <Link href="/login" className="flex gap-3">
+                  <IconButton
+                    size="large"
+                    sx={{
+                      backgroundColor: "#414040 !important",
+                      color: "white",
+                      "&:hover": {
+                        backgroundColor: "#414040",
+                      },
+                    }}
+                  >
+                    <PersonIcon sx={{ fill: "white" }} />
+                  </IconButton>
+                  <span className="text-xl flex justify-center items-center">
+                    LOG IN
+                  </span>
+                </Link>
+              ) : (
+                <div className="flex gap-3 items-center">
+                  <Image
+                    src="/default_profile.png"
+                    alt="Profile"
+                    width={45}
+                    height={45}
+                    style={{ borderRadius: "50%", objectFit: "cover" }}
+                    onClick={handleUserMenuClick}
+                  />
+                  <span className="text-xl flex justify-center items-center">
+                    {session.user?.name || "User"}
+                  </span>
+                  <Menu
+                    anchorEl={userMenuAnchorEl}
+                    open={userMenuOpen}
+                    onClose={handleUserMenuClose}
+                  >
+                    <MenuItem onClick={handleLogout}>Logout</MenuItem>
+                  </Menu>
+                </div>
+              )}
+            </div>
+
+            {/* Right side - Icons and Language */}
+            <div className="flex gap-3 items-center">
+              {/* Notification */}
+              <div className="relative">
+                <IconButton
+                  size="large"
+                  sx={{
+                    backgroundColor: "#414040 !important",
+                    color: "white",
+                    "&:hover": {
+                      backgroundColor: "#414040",
+                    },
+                  }}
+                  onClick={handleNotificationClick}
+                >
+                  <NotificationsIcon sx={{ fill: "white" }} />
+                </IconButton>
+                {hasNotification && (
+                  <div className="absolute top-[5px] right-[5px] w-[10px] h-[10px] bg-red-500 rounded-full shadow-md" />
+                )}
+                <Popover
+                  id={id}
+                  open={open}
+                  anchorEl={anchorEl}
+                  onClose={handleNotificationClose}
+                  anchorOrigin={{
+                    vertical: "bottom",
+                    horizontal: "left",
+                  }}
+                >
+                  <div className="p-4 max-w-[250px]">
+                    <Typography variant="subtitle1" gutterBottom>
+                      Notifications
+                    </Typography>
+                    <div className="flex flex-col gap-2">
+                      <div className="border-b border-gray-200 py-2 cursor-pointer">
+                        <Typography variant="body2">
+                          New feature: Khmer Language is now available!
+                        </Typography>
+                      </div>
+                      <div
+                        className="py-2 cursor-pointer"
+                        onClick={() =>
+                          handleNotificationAction(
+                            "Subscribe to our newsletter for updates."
+                          )
+                        }
+                      >
+                        <Typography variant="body2">
+                          Subscribe to our newsletter for updates.
+                        </Typography>
+                      </div>
+                    </div>
+                  </div>
+                </Popover>
+              </div>
+
+              {/* Favorite */}
+              <Link href="/favorite">
                 <IconButton
                   size="large"
                   sx={{
@@ -216,169 +322,57 @@ const Header: React.FC = () => {
                     },
                   }}
                 >
-                  <PersonIcon sx={{ fill: "white" }} />
+                  <StarIcon sx={{ fill: "white" }} />
                 </IconButton>
-                <span className="text-xl flex justify-center items-center">
-                  LOG IN
-                </span>
               </Link>
-            ) : (
-              <div className="flex gap-3 items-center">
-                {/* Profile Image */}
-                <Image
-                  src="/default_profile.png"
-                  alt="Profile"
-                  width={45}
-                  height={45}
-                  style={{ borderRadius: "50%", objectFit: "cover" }}
-                />
-                <span className="text-xl flex justify-center items-center">
-                  {session.user?.name || "User"}
-                </span>
-              </div>
-            )}
-          </div>
 
-          <div className="flex gap-3 items-center">
-            {/* Notification */}
-            <div className="relative">
-              <IconButton
-                size="large"
-                sx={{
-                  backgroundColor: "#414040 !important",
-                  color: "white",
-                  "&:hover": {
-                    backgroundColor: "#414040",
-                  },
+              {/* Language Selection */}
+              <Image
+                src={countries[language].flag}
+                alt={`${language} Flag`}
+                width={45} // Original dimensions (can adjust if needed)
+                height={45}
+                style={{
+                  width: "50px", // Adjust this to match the desired size
+                  height: "40px", // Same as width to maintain aspect ratio
+                  borderRadius: "50%", // For rounded appearance
+                  objectFit: "cover", // Ensures the image fills the area without distortion
                 }}
-                onClick={handleNotificationClick}
-              >
-                <NotificationsIcon sx={{ fill: "white" }} />
-              </IconButton>
-              {hasNotification && (
-                <div
-                  style={{
-                    position: "absolute",
-                    top: "5px",
-                    right: "5px",
-                    width: "10px",
-                    height: "10px",
-                    backgroundColor: "red",
-                    borderRadius: "50%",
-                    boxShadow: "0 0 4px rgba(0, 0, 0, 0.3)",
+              />
+
+              <FormControl sx={{ width: "70px" }}>
+                <Select
+                  value={language}
+                  onChange={handleLanguageChange}
+                  IconComponent={(props) => (
+                    <ArrowDropDownIcon
+                      {...props}
+                      sx={{ color: "white !important" }}
+                    />
+                  )}
+                  sx={{
+                    height: "50px",
+                    "& .MuiOutlinedInput-notchedOutline": {
+                      border: "none",
+                    },
+                    color: "white",
                   }}
-                ></div>
-              )}
-              <Popover
-                id={id}
-                open={open}
-                anchorEl={anchorEl}
-                onClose={handleNotificationClose}
-                anchorOrigin={{
-                  vertical: "bottom",
-                  horizontal: "left",
-                }}
-              >
-                <div style={{ padding: "16px", maxWidth: "250px" }}>
-                  <Typography variant="subtitle1" gutterBottom>
-                    Notifications
-                  </Typography>
-                  {/* Example notifications */}
-                  <div
-                    style={{
-                      display: "flex",
-                      flexDirection: "column",
-                      gap: "8px",
-                    }}
-                  >
-                    <div
-                      style={{
-                        borderBottom: "1px solid #ddd",
-                        padding: "8px 0",
-                        cursor: "pointer",
-                      }}
-                    >
-                      <Typography variant="body2">
-                        New feature: Khmer Language is now available!
-                      </Typography>
-                    </div>
-                    <div
-                      style={{ padding: "8px 0", cursor: "pointer" }}
-                      onClick={() =>
-                        handleNotificationAction(
-                          "Subscribe to our newsletter for updates."
-                        )
-                      }
-                    >
-                      <Typography variant="body2">
-                        Subscribe to our newsletter for updates.
-                      </Typography>
-                    </div>
-                  </div>
-                </div>
-              </Popover>
+                >
+                  <MenuItem value="EN">EN</MenuItem>
+                  <MenuItem value="KH">KH</MenuItem>
+                </Select>
+              </FormControl>
             </div>
-
-            {/* Favorite */}
-            <Link href={`/favorite`}>
-            <IconButton
-              size="large"
-              sx={{
-                backgroundColor: "#414040 !important",
-                color: "white",
-                "&:hover": {
-                  backgroundColor: "#414040",
-                },
-              }}
-            >
-              <StarIcon sx={{ fill: "white" }} />
-            </IconButton>
-            </Link>
-
-            <Image
-              src={countries[language].flag}
-              alt={`${language} Flag`}
-              width={45}
-              height={45}
-              style={{ borderRadius: "50%", objectFit: "cover" }}
-            />
-
-            <FormControl sx={{ width: "70px" }}>
-              <Select
-                labelId="language-select-label"
-                id="language-select"
-                value={language}
-                label="Language"
-                onChange={handleLanguageChange}
-                IconComponent={(props) => (
-                  <ArrowDropDownIcon
-                    {...props}
-                    sx={{ color: "white !important" }}
-                  />
-                )}
-                sx={{
-                  height: "50px",
-                  "& .MuiOutlinedInput-notchedOutline": {
-                    border: "none",
-                  },
-                  color: "white",
-                }}
-              >
-                <MenuItem value="EN">EN</MenuItem>
-                <MenuItem value="KH">KH</MenuItem>
-              </Select>
-            </FormControl>
           </div>
-        </Toolbar>
-      </AppBar>
+        </div>
+      </div>
 
-      {/* Newsletter Subscription Modal */}
       <NewsletterModal
         open={isNewsletterModalOpen}
         onClose={() => setIsNewsletterModalOpen(false)}
         onSubscribe={handleSubscribe}
       />
-    </>
+    </header>
   );
 };
 

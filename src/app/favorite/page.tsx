@@ -5,6 +5,7 @@ import Link from "next/link";
 import SkeletonCard from "../components/homepage/SkeletonCard";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 interface Movie {
   movie_id: number;
@@ -59,21 +60,23 @@ const MovieCard = ({ movie }: { movie: Movie }) => {
 };
 
 const FavoriteMovieList = () => {
+  const { data: session, status } = useSession();
+  const router = useRouter();
   const [movies, setMovies] = useState<Movie[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const { data: session } = useSession();
 
   useEffect(() => {
+    if (status === "loading") return; // Wait for session to load
+
+    if (!session) {
+      router.push("/login?redirected=true");
+      return;
+    }
+
     const fetchFavoriteMovies = async () => {
       setLoading(true);
       setError(null);
-
-      if (!session) {
-        setError("You must be logged in to view your favorite movies.");
-        setLoading(false);
-        return;
-      }
 
       try {
         // Step 1: Fetch favorite movie IDs
@@ -130,7 +133,7 @@ const FavoriteMovieList = () => {
     };
 
     fetchFavoriteMovies();
-  }, [session]);
+  }, [session, status, router]);
 
   return (
     <div className="mx-auto xs:w-[360px] sm:w-[390px] md:w-[750px] lg:w-[900px] xl:w-[1125px] pt-24">

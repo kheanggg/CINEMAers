@@ -27,7 +27,7 @@ const Login: React.FC = () => {
         </div>
 
         <div
-          className="w-[603px] h-[585px] p-8 content-center"
+          className="w-[603px] h-[585px] p-8 content-center py-14"
           style={{ backgroundColor: "#1D1B1B", opacity: 0.8 }}
         >
           <h2 className="text-2xl font-bold mb-6 text-center text-white">
