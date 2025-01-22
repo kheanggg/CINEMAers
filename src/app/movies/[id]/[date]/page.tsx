@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';  // Importing the useParams and useRouter hooks from next/navigation
 import { MovieDetail } from '../../../components/movies/MovieDetail';  // Importing MovieDetail component
 import Footer from '@/app/components/homepage/slider/footer/Footer';  // Importing Footer component
+import MovieDetailSkeleton from '../../../components/movies/MovieDetailSkeleton';  // Importing MovieDetailSkeleton component
 
 // Define Movie interface to match the detailed data structure
 interface Movie {
@@ -31,15 +32,23 @@ const MovieDetails = () => {
 
     const fetchMovie = async () => {
       try {
+        // Simulate a delay for testing purposes
+        // await new Promise(resolve => setTimeout(resolve, 2000));
+
         const response = await fetch(`/api/movies?id=${id}`);
+        const text = await response.text(); // Get the raw response text
+        console.log("API response:", text); // Log the raw response text
+
         if (!response.ok) {
           throw new Error('Movie not found');
         }
-        const movieData: Movie[] = await response.json();
+
+        const movieData: Movie[] = JSON.parse(text); // Parse the response text as JSON
         console.log("Movie data:", movieData); // Log movie data for debugging
         setMovie(movieData[0]); // Set the first movie from the fetched data
-      } catch {
+      } catch (err) {
         setError('Failed to fetch movie details');
+        console.error("Error fetching movie details:", err); // Log the error
       } finally {
         setLoading(false); // Set loading to false after the request
       }
@@ -48,16 +57,8 @@ const MovieDetails = () => {
     fetchMovie();
   }, [id]);  // The effect depends on the 'id' param
 
-  if (loading) {
-    return <p>Loading...</p>; // Show loading text while the movie data is being fetched
-  }
-
   if (error) {
     return <p>{error}</p>; // Show error message if fetching fails
-  }
-
-  if (!movie) {
-    return <p>Movie not found</p>; // Show message if no movie data is available
   }
 
   return (
@@ -66,8 +67,11 @@ const MovieDetails = () => {
         {/* Additional content can go here */}
       </div>
       <div className="mt-[90px]">
-        {/* Pass 'movie' and 'date' props to the MovieDetail component */}
-        <MovieDetail movie={movie} date={movieDate} />
+        {loading ? (
+          <MovieDetailSkeleton />
+        ) : (
+          movie && <MovieDetail movie={movie} date={movieDate} />
+        )}
       </div>
       <Footer /> {/* Footer component */}
     </div>
