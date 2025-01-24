@@ -15,11 +15,11 @@ export async function GET(request: NextRequest) {
       if (!showtime) {
         return NextResponse.json(
           { error: "Showtime not found." },
-          { status: 404 }
+          { status: 404, headers: { 'Access-Control-Allow-Origin': '*' } }
         );
       }
 
-      return NextResponse.json(showtime);
+      return NextResponse.json(showtime, { headers: { 'Access-Control-Allow-Origin': '*' } });
     }
 
     const movieId = searchParams.get("movie_id");
@@ -32,7 +32,7 @@ export async function GET(request: NextRequest) {
     if (page < 1 || limit < 1) {
       return NextResponse.json(
         { error: "Page and limit must be positive integers." },
-        { status: 400 }
+        { status: 400, headers: { 'Access-Control-Allow-Origin': '*' } }
       );
     }
 
@@ -45,7 +45,7 @@ export async function GET(request: NextRequest) {
       if (isNaN(startTime.getTime())) {
         return NextResponse.json(
           { error: "Invalid start_time format. Use ISO 8601 (e.g., 2025-01-07T14:30:00)." },
-          { status: 400 }
+          { status: 400, headers: { 'Access-Control-Allow-Origin': '*' } }
         );
       }
     }
@@ -57,7 +57,7 @@ export async function GET(request: NextRequest) {
       if (isNaN(selectedDate.getTime())) {
         return NextResponse.json(
           { error: "Invalid selected_date format. Use ISO 8601 (e.g., 2025-01-07)." },
-          { status: 400 }
+          { status: 400, headers: { 'Access-Control-Allow-Origin': '*' } }
         );
       }
     }
@@ -110,7 +110,7 @@ export async function GET(request: NextRequest) {
     if (!showtimes.length) {
       return NextResponse.json(
         { message: "No showtimes found for the specified filters." },
-        { status: 200 }
+        { status: 200, headers: { 'Access-Control-Allow-Origin': '*' } }
       );
     }
 
@@ -123,7 +123,7 @@ export async function GET(request: NextRequest) {
         totalPages: Math.ceil(total / limit),
         perPage: limit,
       },
-    });
+    }, { headers: { 'Access-Control-Allow-Origin': '*' } });
   } catch (error: unknown) {
     // Narrow down the type of the error
     const errorMessage =
@@ -131,7 +131,7 @@ export async function GET(request: NextRequest) {
     console.error("Error fetching showtimes:", errorMessage);
     return NextResponse.json(
       { error: "Failed to fetch showtimes.", details: errorMessage },
-      { status: 500 }
+      { status: 500, headers: { 'Access-Control-Allow-Origin': '*' } }
     );
   }
 }
