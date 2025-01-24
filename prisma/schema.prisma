@@ -33,7 +33,7 @@ model Showtime {
   runtime     Int
   movie       Movie    @relation(fields: [movie_id], references: [movie_id])
   cinema      Cinema   @relation(fields: [cinema_id], references: [cinema_id])
-  bookings     Booking[] // Add this line for the relation to bookings
+  bookings    Booking[] // Add this line for the relation to bookings
 }
 
 model Movie {
@@ -48,7 +48,7 @@ model Movie {
   trailerurl   String?    @db.VarChar(255)
   iscomingsoon Boolean    @default(false)
   showtimes    Showtime[]
-  favorites      Favorite[]
+  favorites    Favorite[]
 }
 
 model auth_providers {
@@ -97,11 +97,11 @@ model Favorite {
 
 model Booking {
   id             Int       @id @default(autoincrement())
-  userId         Int
-  showtimeId     Int
-  seats          String    // Store selected seats as a comma-separated string (e.g., "A1,B2,C3")
-  totalPrice     Float
+  user_id        Int       // Rename to match the expected field name
+  showtime_id    Int       // Rename to match the expected field name
+  seat           String    // Rename to match the expected field name
+  total_price    Float     // Rename to match the expected field name
   createdAt      DateTime  @default(now())
-  user           users     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  showtime       Showtime  @relation(fields: [showtimeId], references: [showtime_id], onDelete: Cascade)
+  user           users     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  showtime       Showtime  @relation(fields: [showtime_id], references: [showtime_id], onDelete: Cascade)
 }

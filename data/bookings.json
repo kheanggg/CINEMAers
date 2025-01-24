@@ -1,0 +1,18 @@
+[
+  {
+    "id": 1,
+    "user_id": 2,
+    "showtime_id": 10,
+    "seat": "D10, C10",
+    "total_price": 7,
+    "createdAt": "2025-01-24T06:05:15.479Z"
+  },
+  {
+    "id": 2,
+    "user_id": 2,
+    "showtime_id": 11,
+    "seat": "C8, B8",
+    "total_price": 5,
+    "createdAt": "2025-01-24T06:23:31.155Z"
+  }
+]
