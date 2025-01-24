@@ -205,7 +205,7 @@ const CommentSection: React.FC = () => {
           <div className="bg-white p-6 rounded-lg shadow-lg text-black">
             <h2 className="text-xl font-semibold mb-4">Confirm Disapproval</h2>
             <p className="mb-4">Are you sure you want to disapprove this comment?</p>
-            <p className="italic mb-4">"{commentToDisapprove?.content}"</p>
+            <p className="italic mb-4">&quot;{commentToDisapprove?.content}&quot;</p>
             <div className="mb-4 flex items-center">
               <span className="mr-2">Rating:</span>
               <StarRating rating={commentToDisapprove?.rating || 0} />
