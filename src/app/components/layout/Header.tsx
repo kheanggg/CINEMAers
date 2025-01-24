@@ -132,7 +132,7 @@ const NewsletterModal: React.FC<NewsletterModalProps> = ({ open, onClose }) => {
 };
 
 const Header: React.FC = () => {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [userMenuAnchorEl, setUserMenuAnchorEl] = useState<null | HTMLElement>(null);
   const [hasNotification, setHasNotification] = useState(true);
@@ -203,6 +203,10 @@ const Header: React.FC = () => {
       window.removeEventListener("scroll", handleScroll);
     };
   }, []);
+
+  if (status === "loading") {
+    return null; // Render nothing while session is loading
+  }
 
   return (
     <header className={`fixed top-0 left-0 right-0 z-50 transition-transform duration-300 ${isVisible ? 'transform translate-y-0' : 'transform -translate-y-full'}`}>
