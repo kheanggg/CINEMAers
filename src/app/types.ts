@@ -9,3 +9,4 @@ export interface MovieDetails {
   genre: string;
   description: string;
 }
+
