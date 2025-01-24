@@ -14,5 +14,13 @@
     "seat": "C8, B8",
     "total_price": 5,
     "createdAt": "2025-01-24T06:23:31.155Z"
+  },
+  {
+    "id": 3,
+    "user_id": 2,
+    "showtime_id": 16,
+    "seat": "B10, B11",
+    "total_price": 7,
+    "createdAt": "2025-01-24T09:59:01.474Z"
   }
 ]

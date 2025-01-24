@@ -9,6 +9,7 @@ import Link from "next/link";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import axios from "axios";
 import Image from "next/image";
+import LocalActivityIcon from '@mui/icons-material/LocalActivity';
 import {
   MenuItem,
   FormControl,
@@ -335,6 +336,21 @@ const Header: React.FC = () => {
                   }}
                 >
                   <StarIcon sx={{ fill: "white" }} />
+                </IconButton>
+              </Link>
+              {/* Favorite */}
+              <Link href="/ticket">
+                <IconButton
+                  size="large"
+                  sx={{
+                    backgroundColor: "#414040 !important",
+                    color: "white",
+                    "&:hover": {
+                      backgroundColor: "#414040",
+                    },
+                  }}
+                >
+                  <LocalActivityIcon sx={{ fill: "white" }} />
                 </IconButton>
               </Link>
 
