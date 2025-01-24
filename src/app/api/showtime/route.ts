@@ -5,6 +5,22 @@ import { Prisma } from "@prisma/client"; // Import Prisma types
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
+    const showtimeId = searchParams.get("showtime_id");
+
+    if (showtimeId) {
+      const showtime = await prisma.showtime.findUnique({
+        where: { showtime_id: Number(showtimeId) },
+      });
+
+      if (!showtime) {
+        return NextResponse.json(
+          { error: "Showtime not found." },
+          { status: 404 }
+        );
+      }
+
+      return NextResponse.json(showtime);
+    }
 
     const movieId = searchParams.get("movie_id");
     const startTimeParam = searchParams.get("start_time");

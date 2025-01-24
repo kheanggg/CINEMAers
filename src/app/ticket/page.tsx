@@ -16,7 +16,8 @@ export default function Ticket() {
     seats: string;
     totalPrice: number;
     posterurl: string;
-    showtime: string;
+    showtimeId: number; // Add showtime_id to the Booking interface
+    start_time: string; // Add start_time to the Booking interface
   }
 
   const [bookings, setBookings] = useState<Booking[]>([]);
@@ -30,20 +31,27 @@ export default function Ticket() {
           }
           return response.json();
         })
-        .then(data => setBookings(data))
+        .then(async data => {
+          const bookingsWithStartTime = await Promise.all(data.map(async (booking: Booking) => {
+            const showtimeResponse = await fetch(`/api/showtime?showtime_id=${booking.showtimeId}`);
+            const showtimeData = await showtimeResponse.json();
+            return { ...booking, start_time: showtimeData.start_time }; // Use full start_time
+          }));
+          setBookings(bookingsWithStartTime);
+        })
         .catch(error => console.error('Error fetching bookings:', error));
     }
   }, [user_id]);
 
-  const getTimeLeft = (showtime: string) => {
+  const getTimeLeft = (showtime: { start_time: string }) => {
     const now = dayjs();
-    const showtimeDate = dayjs(showtime);
+    const showtimeDate = dayjs(showtime.start_time);
     if (now.isAfter(showtimeDate)) {
       return 'Expired';
     }
-    const duration = showtimeDate.diff(now);
-    const hours = Math.floor(duration / (1000 * 60 * 60));
-    const minutes = Math.floor((duration % (1000 * 60 * 60)) / (1000 * 60));
+    const duration = showtimeDate.diff(now, 'minute');
+    const hours = Math.floor(duration / 60);
+    const minutes = duration % 60;
     return `${hours}h ${minutes}m left`;
   };
 
@@ -60,14 +68,14 @@ export default function Ticket() {
               <div className="col-span-1 flex flex-col justify-between my-auto">
                 <div>
                   <h5 className="text-lg font-bold">{booking.movieTitle}</h5>
-                  <p className="text-sm text-gray-400">{booking.date} | {booking.time}</p>
+                  <p className="text-sm text-gray-400">{booking.date} | {booking.start_time}</p> {/* Use formatted start_time */}
                   <p className="text-sm">Seats: {booking.seats}</p>
                   <p className="text-sm">Total Price: ${booking.totalPrice}</p>
                 </div>
               </div>
               <div className="col-span-1 flex items-center justify-center">
                 <div className="text-sm text-red-500 text-center">
-                  {getTimeLeft(booking.showtime)}
+                  {getTimeLeft({ start_time: booking.start_time })} {/* Pass start_time */}
                 </div>
               </div>
             </div>

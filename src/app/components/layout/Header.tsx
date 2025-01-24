@@ -230,14 +230,15 @@ const Header: React.FC = () => {
                   </span>
                 </Link>
               ) : (
-                <div className="flex gap-3 items-center">
+                <div
+                  className="flex gap-3 items-center"
+                  onClick={handleUserMenuClick}>
                   <Image
                     src="/default_profile.png"
                     alt="Profile"
                     width={45}
                     height={45}
                     style={{ borderRadius: "50%", objectFit: "cover" }}
-                    onClick={handleUserMenuClick}
                   />
                   <span className="text-xl flex justify-center items-center">
                     {session.user?.name || "User"}

@@ -96,14 +96,17 @@ export default function ConfirmBooking({
   };
 
   const handleConfirm = async () => {
+    console.log('Confirm button clicked'); // Log to ensure the function is called
+
     if (validateForm()) {
       const bookingDetails = {
-        price,
         showtime_id,
         seat: Object.keys(selectedSeats).join(", "),
         total_price: totalPrice,
         user_id
       };
+
+      console.log('Booking details:', bookingDetails); // Log booking details for debugging
 
       try {
         const response = await fetch('/api/booking', {
@@ -111,7 +114,7 @@ export default function ConfirmBooking({
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify(bookingDetails),
+          body: JSON.stringify(bookingDetails), // Ensure the body is correctly passed
         });
 
         if (response.ok) {
@@ -121,7 +124,11 @@ export default function ConfirmBooking({
           onClose(); // Close the current modal
         } else {
           const errorData = await response.text(); // Use text() to get the response body as a string
-          console.error('Booking failed:', errorData);
+          if (errorData) {
+            console.error('Booking failed:', errorData);
+          } else {
+            console.error('Booking failed: Unknown error', response.status, response.statusText);
+          }
         }
       } catch (error) {
         console.error('Error making booking request:', error);
