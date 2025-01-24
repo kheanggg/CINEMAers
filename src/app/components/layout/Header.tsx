@@ -134,7 +134,9 @@ const NewsletterModal: React.FC<NewsletterModalProps> = ({ open, onClose }) => {
 const Header: React.FC = () => {
   const { data: session, status } = useSession();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const [userMenuAnchorEl, setUserMenuAnchorEl] = useState<null | HTMLElement>(null);
+  const [userMenuAnchorEl, setUserMenuAnchorEl] = useState<null | HTMLElement>(
+    null
+  );
   const [hasNotification, setHasNotification] = useState(true);
   const [language, setLanguage] = useState<string>("EN");
   const [isNewsletterModalOpen, setIsNewsletterModalOpen] = useState(false);
@@ -209,7 +211,11 @@ const Header: React.FC = () => {
   }
 
   return (
-    <header className={`fixed top-0 left-0 right-0 z-50 transition-transform duration-300 ${isVisible ? 'transform translate-y-0' : 'transform -translate-y-full'}`}>
+    <header
+      className={`fixed top-0 left-0 right-0 z-50 transition-transform duration-300 ${
+        isVisible ? "transform translate-y-0" : "transform -translate-y-full"
+      }`}
+    >
       <div className="container mx-auto px-4 pt-10">
         <div className="max-w-[1125px] mx-auto">
           <div className="flex justify-between items-center">
@@ -236,7 +242,8 @@ const Header: React.FC = () => {
               ) : (
                 <div
                   className="flex gap-3 items-center"
-                  onClick={handleUserMenuClick}>
+                  onClick={handleUserMenuClick}
+                >
                   <Image
                     src="/default_profile.png"
                     alt="Profile"
@@ -337,11 +344,22 @@ const Header: React.FC = () => {
                   <Button
                     variant="contained"
                     sx={{
-                      backgroundColor: "#1976d2",
+                      backgroundColor: "#414040", // Vibrant blue
                       color: "white",
                       textTransform: "none",
+                      padding: "10px 20px",
+                      borderRadius: "8px",
+                      fontWeight: 600,
+                      boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+                      transition: "all 0.3s ease",
                       "&:hover": {
-                        backgroundColor: "#1565c0",
+                        backgroundColor: "#4f4d4d", // Slightly darker blue on hover
+                        transform: "translateY(-2px)",
+                        boxShadow: "0 6px 8px rgba(0, 0, 0, 0.15)",
+                      },
+                      "&:active": {
+                        transform: "translateY(1px)",
+                        boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
                       },
                     }}
                   >

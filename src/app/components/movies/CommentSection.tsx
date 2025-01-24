@@ -19,6 +19,8 @@ const CommentSection: React.FC = () => {
   const [comments, setComments] = useState<Comment[]>([]);
   const [newComment, setNewComment] = useState<string>('');
   const [newRating, setNewRating] = useState<number>(5);
+  const [showDisapproveModal, setShowDisapproveModal] = useState(false);
+  const [commentToDisapprove, setCommentToDisapprove] = useState<Comment | null>(null);
 
   useEffect(() => {
     const fetchComments = async () => {
@@ -65,6 +67,27 @@ const CommentSection: React.FC = () => {
           : comment
       )
     );
+  };
+
+  const handleDisapprove = (id: number) => {
+    const comment = comments.find((comment) => comment.id === id);
+    if (comment) {
+      setCommentToDisapprove(comment);
+      setShowDisapproveModal(true);
+    }
+  };
+
+  const confirmDisapprove = () => {
+    if (commentToDisapprove) {
+      setComments(comments.filter((comment) => comment.id !== commentToDisapprove.id));
+      setShowDisapproveModal(false);
+      setCommentToDisapprove(null);
+    }
+  };
+
+  const cancelDisapprove = () => {
+    setShowDisapproveModal(false);
+    setCommentToDisapprove(null);
   };
 
   const StarRating = ({ rating, setRating }: { rating: number; setRating?: (rating: number) => void }) => {
@@ -124,6 +147,15 @@ const CommentSection: React.FC = () => {
                     <ThumbsDown className="w-4 h-4" />
                     <span className="text-sm">{comment.dislikes}</span>
                   </button>
+
+                  {session?.user?.role === 'admin' && (
+                    <button
+                      onClick={() => handleDisapprove(comment.id)}
+                      className="flex items-center gap-1 text-gray-400 hover:text-red-500 transition-colors"
+                    >
+                      Disapprove
+                    </button>
+                  )}
                 </div>
               </div>
             </div>
@@ -165,6 +197,34 @@ const CommentSection: React.FC = () => {
       ) : (
         <div className="border-t border-gray-800 p-4 text-center text-gray-400">
           Please log in to post a comment.
+        </div>
+      )}
+
+      {showDisapproveModal && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg text-black">
+            <h2 className="text-xl font-semibold mb-4">Confirm Disapproval</h2>
+            <p className="mb-4">Are you sure you want to disapprove this comment?</p>
+            <p className="italic mb-4">"{commentToDisapprove?.content}"</p>
+            <div className="mb-4 flex items-center">
+              <span className="mr-2">Rating:</span>
+              <StarRating rating={commentToDisapprove?.rating || 0} />
+            </div>
+            <div className="flex justify-end gap-4">
+              <button
+                onClick={cancelDisapprove}
+                className="px-4 py-2 bg-gray-300 rounded-lg hover:bg-gray-400"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmDisapprove}
+                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+              >
+                Confirm
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>
