@@ -15,6 +15,7 @@ interface Movie {
   genre: string;
   rating: string;
   trailerurl: string;
+  
 }
 
 const MovieDetails = () => {
