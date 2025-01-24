@@ -11,12 +11,14 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <SessionProvider>
-      <Head>
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
-      <Header />
-      {children}
-      <Footer />
+      <div className="flex flex-col min-h-screen">
+        <Head>
+          <link rel="icon" href="/favicon.ico" />
+        </Head>
+        <Header />
+        <main className="flex-grow">{children}</main>
+        <Footer />
+      </div>
     </SessionProvider>
   );
 }

@@ -103,7 +103,7 @@ export default function ConfirmBooking({
         showtime_id,
         seat: Object.keys(selectedSeats).join(", "),
         total_price: totalPrice,
-        user_id
+        user_id: user_id // Ensure user_id is included in the request body
       };
 
       console.log('Booking details:', bookingDetails); // Log booking details for debugging
