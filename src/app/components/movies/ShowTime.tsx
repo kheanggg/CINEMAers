@@ -49,7 +49,7 @@ const ShowTime: React.FC<{ movieDetails: MovieDetails }> = ({ movieDetails }) =>
     const fetchCinemas = async () => {
       try {
         const response = await axios.get<{ data: { cinema_id: number; name: string }[] }>(
-          `http://localhost:3000/api/cinemas`
+          `http://cinemaers.xyz/api/cinemas`
         );
         const { data } = response.data;
 
