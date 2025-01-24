@@ -330,6 +330,25 @@ const Header: React.FC = () => {
                 </IconButton>
               </Link>
 
+              {/* Admin Dashboard Button */}
+              {session && session.user.role === "admin" && (
+                <Link href="/admin/dashboard">
+                  <Button
+                    variant="contained"
+                    sx={{
+                      backgroundColor: "#1976d2",
+                      color: "white",
+                      textTransform: "none",
+                      "&:hover": {
+                        backgroundColor: "#1565c0",
+                      },
+                    }}
+                  >
+                    Admin Dashboard
+                  </Button>
+                </Link>
+              )}
+
               {/* Language Selection */}
               <Image
                 src={countries[language].flag}

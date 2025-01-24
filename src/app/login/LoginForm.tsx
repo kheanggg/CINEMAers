@@ -26,14 +26,14 @@ const LoginForm: React.FC = () => {
     let hasError = false;
     const newError = { ...error };
 
-    if (!email) {
+    if (!email && !isPhoneLogin) {
       newError.email = "Please enter your email.";
       hasError = true;
     } else {
       newError.email = "";
     }
 
-    if (!password) {
+    if (!password && !isPhoneLogin) {
       newError.password = "Please enter your password.";
       hasError = true;
     } else {
@@ -61,27 +61,41 @@ const LoginForm: React.FC = () => {
     if (hasError) return;
 
     if (isPhoneLogin) {
-      const result = await signIn("credentials", {
+      console.log("Sending OTP credentials:", { phoneNumber, otp }); // Add logging
+      const result = await signIn("OTP", {
         redirect: false,
         phone_number: phoneNumber,
         otp: otp,
+        callbackUrl: "/homepage", // Set callbackUrl
       });
+      console.log("OTP login result:", result); // Add logging
       if (result?.error) {
         setError({ ...newError, otp: result.error });
       } else {
-        router.push("/homepage");
+        if (result?.url) {
+          router.push(result.url);
+        } else {
+          router.push("/homepage");
+        }
       }
     } else {
+      console.log("Sending email credentials:", { email, password }); // Add logging
       const result = await signIn("credentials", {
         redirect: false,
         email,
         password,
+        callbackUrl: "/homepage", // Set callbackUrl
       });
+      console.log("Email login result:", result); // Add logging
 
       if (result?.error) {
         setError({ ...newError, password: result.error });
       } else {
-        router.push("/homepage");
+        if (result?.url) {
+          router.push(result.url);
+        } else {
+          router.push("/homepage");
+        }
       }
     }
   };

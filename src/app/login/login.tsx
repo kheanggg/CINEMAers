@@ -17,12 +17,12 @@ const Login: React.FC = () => {
       }}
     >
       <div className="flex flex-row rounded-[15px] overflow-hidden">
-        <div className="relative w-[241px] h-[585] overflow-hidden hidden md:block">
+        <div className="relative w-[241px] h-[585px] overflow-hidden hidden md:block">
           <Image
             src="/login_assets/login_image_container.jpg"
             alt="water tower image"
             layout="fill"
-            objectFit="cover"
+            style={{ objectFit: "cover" }} // Use style prop instead of objectFit
           />
         </div>
 

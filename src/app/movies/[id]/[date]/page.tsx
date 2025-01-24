@@ -19,7 +19,9 @@ interface Movie {
 }
 
 const MovieDetails = () => {
-  const { id, date } = useParams(); // Access 'id' and 'date' params from the URL
+  const params = useParams();
+  const id = params?.id as string;
+  const date = params?.date as string;
   const [movie, setMovie] = useState<Movie | null>(null); // State to store movie data
   const [loading, setLoading] = useState(true); // Loading state
   const [error, setError] = useState<string | null>(null); // Error state

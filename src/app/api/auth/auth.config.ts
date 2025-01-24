@@ -13,6 +13,7 @@ declare module "next-auth" {
       image?: string | null;
       id: string; // Make id required
       provider?: string;
+      role?: string; // Add role to session
     };
   }
 }
@@ -26,6 +27,7 @@ export const authOptions: AuthOptions = {
     }),
 
     CredentialsProvider({
+      id: "OTP", // Explicitly set a unique ID
       name: "OTP",
       credentials: {
         phone_number: { label: "Phone Number", type: "text" },
@@ -64,7 +66,8 @@ export const authOptions: AuthOptions = {
 
     // Credentials Provider (Email/Password)
     CredentialsProvider({
-      name: "Email and Password",
+      id: "credentials", // Explicitly set a unique ID
+      name: "credentials",
       credentials: {
         email: {
           label: "Email",
@@ -76,37 +79,55 @@ export const authOptions: AuthOptions = {
       async authorize(credentials) {
         const { email, password } = credentials ?? {};
 
+        console.log("Admin Login Debug:");
+        console.log("Received Email:", email);
+        console.log("Password Provided:", password ? "Yes" : "No");
+
         if (!email || !password) {
+          console.error("Missing email or password for admin login");
           throw new Error("Email and Password are required.");
         }
 
-        const user = await prisma.users.findUnique({
+        // Admin login check
+        const admin = await prisma.admin.findUnique({
           where: { email },
-          include: { auth_providers: true },
         });
 
-        if (!user) {
-          throw new Error("No user found with this email.");
+        console.log("Admin Database Lookup:", {
+          found: !!admin,
+          email: admin?.email,
+          hashedPassword: admin?.password ? "Present" : "Not Found",
+        });
+
+        if (!admin) {
+          console.error(`No admin found with email: ${email}`);
+          return null; // Allow fallback to other providers
         }
 
-        const authProvider = user.auth_providers.find(
-          (provider) => provider.provider === "credentials"
-        );
+        try {
+          const isValidPassword = await compare(password, admin.password);
 
-        if (!authProvider || !authProvider.password) {
-          throw new Error("No password found for this user.");
+          console.log("Password Validation:", {
+            isValid: isValidPassword,
+            inputPasswordLength: password.length,
+            storedPasswordLength: admin.password.length,
+          });
+
+          if (!isValidPassword) {
+            console.error("Invalid admin password");
+            return null;
+          }
+
+          return {
+            id: admin.id.toString(),
+            name: "Admin",
+            email: admin.email,
+            role: "admin",
+          };
+        } catch (error) {
+          console.error("Admin login error:", error);
+          throw new Error("Authentication failed");
         }
-
-        const isValid = await compare(password, authProvider.password);
-        if (!isValid) {
-          throw new Error("Invalid password.");
-        }
-
-        return {
-          id: user.id.toString(),
-          name: user.name,
-          email: user.email,
-        };
       },
     }),
   ],
@@ -116,7 +137,7 @@ export const authOptions: AuthOptions = {
   },
 
   pages: {
-    signIn: "/auth/signin", // Custom sign-in page
+    signIn: "/login", // Custom sign-in page
     error: "/auth/error", // Error page
   },
 
@@ -163,6 +184,7 @@ export const authOptions: AuthOptions = {
         token.name = user.name;
         token.email = user.email;
         token.id = user.id;
+        token.role = (user as { role?: string }).role; // Add role to token
       }
       return token;
     },
@@ -173,6 +195,7 @@ export const authOptions: AuthOptions = {
           id: token.id as string, // Ensure id is required and set
           name: token.name,
           email: token.email,
+          role: token.role as string, // Add role to session
         };
       }
       return session;
