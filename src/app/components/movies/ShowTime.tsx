@@ -73,7 +73,7 @@ const ShowTime: React.FC<{ movieDetails: MovieDetails }> = ({ movieDetails }) =>
         setLoading(true);
         const response = await axios.get<{
           data: { cinema_id: number; hall_id: number; price: number; selected_date: string; start_time: string; movie_id: number; runtime: number; showtime_id: number }[];
-        }>(`http://localhost:3000/api/showtime`, {
+        }>(`http://cinemaers.xyz/api/showtime`, {
           params: {
             movie_id,
             selected_date: date
